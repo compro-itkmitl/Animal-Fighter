@@ -76,7 +76,7 @@ public:
 	void handleEvent(SDL_Event& e);
 
 	//Moves the dot and checks collision
-	void move(SDL_Rect& square, Circle& circle);
+	int move(SDL_Rect& square, Circle& circle);
 	int move2(SDL_Rect& square, Circle& circle);
 	//Shows the dot on the screen
 	void render();
@@ -127,6 +127,7 @@ LTexture gDotTexture;
 LTexture gBGTexture;
 LTexture Oreo;
 LTexture mon;
+LTexture picbomb;
 LTexture::LTexture()
 {
 	//Initialize
@@ -282,7 +283,7 @@ void Dot::handleEvent(SDL_Event& e)
 	}
 }
 int y = 0;
-void Dot::move(SDL_Rect& square, Circle& circle)
+int Dot::move(SDL_Rect& square, Circle& circle)
 {
 	int x = 0;
 	//Move the dot left or right
@@ -290,17 +291,18 @@ void Dot::move(SDL_Rect& square, Circle& circle)
 	shiftColliders();
 
 	//If the dot collided or went too far to the left or right
-	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH) || checkCollision(mCollider, square) || checkCollision(mCollider, circle))
+	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
 	{
+		printf("wall");
 		//Move back
-		mPosX -= mVelX + 10;
+		mPosX -= mVelX + 3;
 		x++;
 		y++;
 		if (mPosX <= 0) {
 			mPosX = 15;
 		}
 		/*if (y >= 3) {
-			printf("gameover");
+		printf("gameover");
 		}*/
 		shiftColliders();
 	}
@@ -308,22 +310,28 @@ void Dot::move(SDL_Rect& square, Circle& circle)
 	//Move the dot up or down
 	mPosY += mVelY;
 	shiftColliders();
+	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
+		printf("mon");
+		mPosX -= mVelX + 10;
+		x = 1;
+	}
 	//If the dot collided or went too far up or down
-	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT) || checkCollision(mCollider, square) || checkCollision(mCollider, circle))
+	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
 	{
+		printf("wall");
 		//Move back
-		mPosY -= mVelY + 10;
+		mPosY -= mVelY;
 		x++;
 		y++;
 		if (mPosY <= 0) {
 			mPosY = 15;
 		}
 		/*if (y >= 3) {
-			printf("gameover");
+		printf("gameover");
 		}*/
 		shiftColliders();
 	}
-	
+	return x;
 }
 int Dot::move2(SDL_Rect& square, Circle& circle)
 {
@@ -334,8 +342,9 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	//If the dot collided or went too far to the left or right
 	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
 	{
+		printf("wall");
 		//Move back
-		mPosX -= mVelX + 10;
+		mPosX -= mVelX + 3;
 		y++;
 		if (mPosX <= 0) {
 			mPosX = 15;
@@ -346,16 +355,19 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 		shiftColliders();
 	}
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
+		printf("Bomb");
 		x = 1;
+		printf("%d", x);
 	}
 	//Move the dot up or down
 	mPosY += mVelY;
 	shiftColliders();
 	//If the dot collided or went too far up or down
-	if ((mPosY - mCollider.r < 0)||(mPosY + mCollider.r > SCREEN_HEIGHT))
+	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
 	{
+		printf("wall");
 		//Move back
-		mPosY -= mVelY + 10;
+		mPosY -= mVelY;
 		y++;
 		if (mPosY <= 0) {
 			mPosY = 15;
@@ -442,8 +454,9 @@ bool init()
 
 	return success;
 }
-const int WALKING_ANIMATION_FRAMES = 4;
+const int WALKING_ANIMATION_FRAMES = 4, picbomb2 = 7;
 SDL_Rect gSpriteClips[WALKING_ANIMATION_FRAMES];
+SDL_Rect pic01[picbomb2];
 bool loadMedia()
 {
 	//Loading success flag
@@ -477,6 +490,42 @@ bool loadMedia()
 		gSpriteClips[3].y = 111;
 		gSpriteClips[3].w = 37;
 		gSpriteClips[3].h = 37;
+	}
+	if (!picbomb.loadFromFile("animal/bomb.png"))
+	{
+		printf("Failed to load dot texture!\n");
+		success = false;
+	}
+	else {
+		pic01[0].x = 0;
+		pic01[0].y = 0;
+		pic01[0].w = 167;
+		pic01[0].h = 158;
+		pic01[1].x = 167;
+		pic01[1].y = 0;
+		pic01[1].w = 167;
+		pic01[1].h = 158;
+		pic01[2].x = 334;
+		pic01[2].y = 0;
+		pic01[2].w = 167;
+		pic01[2].h = 158;
+		pic01[3].x = 0;
+		pic01[3].y = 316;
+		pic01[3].w = 167;
+		pic01[3].h = 158;
+		pic01[4].x = 167;
+		pic01[4].y = 316;
+		pic01[4].w = 167;
+		pic01[4].h = 158;
+		pic01[5].x = 334;
+		pic01[5].y = 316;
+		pic01[5].w = 167;
+		pic01[5].h = 158;
+		pic01[6].x = 0;
+		pic01[6].y = 474;
+		pic01[6].w = 167;
+		pic01[6].h = 158;
+
 	}
 	if (!gDotTexture.loadFromFile("animal/dot.bmp"))
 	{
@@ -585,7 +634,7 @@ double distanceSquared(int x1, int y1, int x2, int y2)
 }
 int main(int argc, char* args[])
 {	//Start up SDL and create window
-	int count = 0, count2 = 0, count3 = 0, count4 = 2, level = 3, value = 0, count5 = 4 ,frame = 0,time=0,time1=-1,time2=-1,damage = 0;
+	int i[5] = { 0,0,0,0,0 }, frame2[10] = {}, count = 0, count2 = 0, count3 = 0, count4 = 2, level = 2, value = 0, count5 = 4, frame = 0, time = 0, time1 = -1, time2 = -1, damage = 0, bossmove = 2, countbomb = 0;
 	struct aa {
 		SDL_Rect a{ 150,0,30,30 };
 		SDL_Rect a1{ 200,100,30,30 };
@@ -601,6 +650,10 @@ int main(int argc, char* args[])
 		SDL_Rect h6{ 680,380,30,30 };
 		SDL_Rect h7{ 680,410,30,30 };
 		SDL_Rect boss{ 590,50,50,400 };
+		SDL_Rect bomb1{ 590,50,50,50 };
+		SDL_Rect bomb2{ 590,50,50,400 };
+		SDL_Rect bomb3{ 590,50,50,400 };
+		SDL_Rect bomb4{ 590,50,50,400 };
 	}a[99];
 	if (!init())
 	{
@@ -626,7 +679,7 @@ int main(int argc, char* args[])
 
 			//The dot that will be moving around on the screen
 			Dot dot(Dot::DOT_WIDTH / 2, Dot::DOT_HEIGHT / 2);
-			Dot otherDot(3000,3000);
+			Dot otherDot(3000, 3000);
 			//While application is running
 			a[count + 1].a4.y = 30;
 			a[count + 1].h6.y = 65;
@@ -643,6 +696,7 @@ int main(int argc, char* args[])
 			a[count + 5].a4.x = 900;
 			a[count + 5].h6.x = 900;
 			a[count + 6].a4.x = 900;
+			a[count + 7].a4.x = 500;
 			while (!quit)
 			{
 				//Handle events on queue
@@ -657,7 +711,31 @@ int main(int argc, char* args[])
 					//Handle input for the dot
 					dot.handleEvent(e);
 				}
-				a[0].boss.x -= 0;
+				//Scroll background
+				--scrollingOffset;
+				if (scrollingOffset < -gBGTexture.getWidth())
+				{
+					scrollingOffset = 0;
+				}
+				SDL_RenderClear(gRenderer);
+				//Clear screen
+				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_RenderClear(gRenderer);
+				//Render background
+				gBGTexture.render(scrollingOffset, 0);
+				gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
+				//
+				//boss
+				a[0].boss.y -= bossmove;
+				if (a[0].boss.y <= 3)
+				{
+					bossmove = -2;
+				}
+				else if (a[0].boss.y == 80)
+				{
+					bossmove = 2;
+				}
+				//
 				a[count].a.x -= level;
 				a[count].a1.x -= level;
 				a[count].a2.x -= level;
@@ -674,12 +752,7 @@ int main(int argc, char* args[])
 				a[count + 5].a4.x -= level;
 				a[count + 5].h6.x -= level;
 				a[count + 6].a4.x -= level;
-				//Scroll background
-				--scrollingOffset;
-				if (scrollingOffset < -gBGTexture.getWidth())
-				{
-					scrollingOffset = 0;
-				}
+
 				//Move the dot and check collision
 				dot.move(a[count].boss, otherDot.getCollider());
 				dot.move(a[count].a, otherDot.getCollider());
@@ -689,17 +762,25 @@ int main(int argc, char* args[])
 				dot.move(a[count].a4, otherDot.getCollider());
 				dot.move(a[count].ha, otherDot.getCollider());
 				dot.move(a[count].h3, otherDot.getCollider());
-				dot.move(a[count+1].a4, otherDot.getCollider());
-				dot.move(a[count+1].h6, otherDot.getCollider());
-				dot.move(a[count+2].a4, otherDot.getCollider());
+				dot.move(a[count + 1].a4, otherDot.getCollider());
+				dot.move(a[count + 1].h6, otherDot.getCollider());
+				dot.move(a[count + 2].a4, otherDot.getCollider());
 				dot.move(a[count + 3].a4, otherDot.getCollider());
 				dot.move(a[count + 3].h6, otherDot.getCollider());
 				dot.move(a[count + 4].a4, otherDot.getCollider());
 				dot.move(a[count + 5].a4, otherDot.getCollider());
 				dot.move(a[count + 5].h6, otherDot.getCollider());
 				dot.move(a[count + 6].a4, otherDot.getCollider());
+
+				//Level
+				if (count2 >2 && count2 < 5) {
+					level = 4;
+				}
+				if (count2 > 5) {
+					level = 7;
+				}
 				//This is a Bomb
-				if (count2%4==0){
+				if (count2 % 4 == 0) {
 					time = 1;
 				}
 				if (count2 % 4 == 1) {
@@ -708,42 +789,111 @@ int main(int argc, char* args[])
 				if (count2 % 4 == 3) {
 					time2 = 1;
 				}
+				//
+				//position
 				if (time >= 0) {
 
 					a[count + 6].a.x -= 0;
 					a[count + 6].a1.x -= 0;
-					dot.move2(a[count+6].a, otherDot.getCollider());
-					if (dot.move2(a[count + 6].a, otherDot.getCollider()) == 1) {
+					dot.move2(a[count + 6].a, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a, otherDot.getCollider()) == 1) { //cheak bird
 						a[count + 6].a.x = 5000;
 						a[count + 6].a.y = 5000;
 						damage++;
+						frame2[0] = 1;
 					}
-					dot.move2(a[count+6].a1, otherDot.getCollider());
-					if (dot.move2(a[count + 6].a1, otherDot.getCollider()) == 1) {
+					dot.move2(a[count + 6].a1, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a1, otherDot.getCollider()) == 1) { //cheak bird
 						a[count + 6].a1.x = 5000;
 						a[count + 6].a1.y = 5000;
 						damage++;
+						frame2[1] = 1;
 					}
 				}
-				printf("%d", damage);
 				if (time1 >= 0) {
 					a[count + 6].a2.x -= 0;
-					dot.move(a[count+6].a2, otherDot.getCollider());
+					dot.move2(a[count + 6].a2, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a2, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 6].a2.x = 5000;
+						a[count + 6].a2.y = 5000;
+						damage++;
+						frame2[2] = 1;
+					}
 				}
 				if (time2 >= 0) {
-					a[count + 7].a4.x = 500;
 					a[count + 6].a3.x -= 0;
-					a[count + 6].a4.x -= 0;
-					dot.move(a[count + 6].a3, otherDot.getCollider());
-					dot.move(a[count + 7].a4, otherDot.getCollider());
+					a[count + 7].a4.x -= 0;
+					dot.move2(a[count + 6].a3, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a3, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 6].a3.x = 5000;
+						a[count + 6].a3.y = 5000;
+						damage++;
+						frame2[3] = 1;
+					}
+					dot.move2(a[count + 7].a4, otherDot.getCollider());
+					if (dot.move2(a[count + 7].a4, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 7].a4.x = 5000;
+						a[count + 7].a4.y = 5000;
+						damage++;
+						frame2[4] = 1;
+					}
 				}
-				
+
+				//render picture bomb
+				if (frame2[0] == 1) {
+					SDL_Rect* p = &pic01[i[0] / 6];
+					i[0]++;
+					picbomb.render(500, 50, p);
+					if (i[0] == 150) {
+						frame2[0] += 2;
+					}
+				}
+				if (frame2[1] == 1) {
+					SDL_Rect* p = &pic01[i[1] / 6];
+					i[1]++;
+					picbomb.render(530, 100, p);
+					if (i[1] == 150) {
+						frame2[1] += 2;
+					}
+				}
+				if (frame2[2] == 1) {
+					SDL_Rect* p = &pic01[i[2] / 6];
+					i[2]++;
+					picbomb.render(520, 80, p);
+					if (i[2] == 150) {
+						frame2[2] += 2;
+					}
+				}
+				if (frame2[3] == 1) {
+					SDL_Rect* p = &pic01[i[3] / 6];
+					i[3]++;
+					picbomb.render(510, 10, p);
+					if (i[3] == 150) {
+						frame2[3] += 2;
+					}
+				}
+				if (frame2[4] == 1) {
+					SDL_Rect* p = &pic01[i[4] / 6];
+					i[4]++;
+					picbomb.render(520, 50, p);
+					if (i[4] == 150) {
+						frame2[4] += 2;
+					}
+				}
+				//
+				//
+				//kill boss
+				if (damage == 4) {
+					a[0].boss.x = 5000;
+				}
+				//
+
 				if (a[count].a.x < -30) {
 					count2++;
 					time = -1;
 					time1 = -1;
 					time2 = -1;
-					a[count].a.x =	1400;
+					a[count].a.x = 1400;
 				}
 				if (a[count].a1.x < -30) {
 					a[count].a1.x = 680;
@@ -763,14 +913,14 @@ int main(int argc, char* args[])
 				if (a[count].h3.x < -30) {
 					a[count].h3.x = 680;
 				}
-				if (a[count+1].a4.x < -30) {
-					a[count+1].a4.x = 1200;
+				if (a[count + 1].a4.x < -30) {
+					a[count + 1].a4.x = 1200;
 				}
-				if (a[count+1].h6.x < -30) {
-					a[count+1].h6.x = 1400;
+				if (a[count + 1].h6.x < -30) {
+					a[count + 1].h6.x = 1400;
 				}
-				if (a[count+2].a4.x < -30) {
-					a[count+2].a4.x = 2000;
+				if (a[count + 2].a4.x < -30) {
+					a[count + 2].a4.x = 2000;
 				}
 				if (a[count + 3].a4.x < -30) {
 					a[count + 3].a4.x = 3000;
@@ -808,38 +958,34 @@ int main(int argc, char* args[])
 						a[count].h7.x = 1300;
 					}
 				}
-				//Clear screen
-				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-				SDL_RenderClear(gRenderer);
 
-				//Render background
-				gBGTexture.render(scrollingOffset, 0);
-				gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
-				
+
+
+
 
 				//Render wall
-				//Render current frame
-				SDL_Rect* currentClip = &gSpriteClips[frame / 4];
 				//boss
 				SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
 				SDL_RenderDrawRect(gRenderer, &a[0].boss);
 				//
-				mon.render(a[count].a.x, a[count].a.y , currentClip);
-				mon.render(a[count].a1.x, a[count].a1.y , currentClip);
-				mon.render(a[count].a2.x, a[count].a2.y , currentClip);
-				mon.render(a[count].a3.x, a[count].a3.y , currentClip);
-				mon.render(a[count].a4.x, a[count].a4.y , currentClip);
-				mon.render(a[count].ha.x, a[count].ha.y , currentClip);
-				mon.render(a[count].h3.x, a[count].h3.y , currentClip);
-				mon.render(a[count+1].a4.x, a[count+1].a4.y , currentClip);
-				mon.render(a[count+1].h6.x, a[count+1].h6.y , currentClip);
-				mon.render(a[count+2].a4.x, a[count+2].a4.y , currentClip);
-				mon.render(a[count+3].h6.x, a[count+3].h6.y , currentClip);
-				mon.render(a[count+3].a4.x, a[count+3].a4.y , currentClip);
-				mon.render(a[count+4].a4.x, a[count+4].a4.y , currentClip);
-				mon.render(a[count+5].h6.x, a[count+5].h6.y , currentClip);
-				mon.render(a[count+5].a4.x, a[count+5].a4.y , currentClip);
-				mon.render(a[count+6].a4.x, a[count+6].a4.y , currentClip);
+				//Render current frame
+				SDL_Rect* currentClip = &gSpriteClips[frame / 4];
+				mon.render(a[count].a.x, a[count].a.y, currentClip);
+				mon.render(a[count].a1.x, a[count].a1.y, currentClip);
+				mon.render(a[count].a2.x, a[count].a2.y, currentClip);
+				mon.render(a[count].a3.x, a[count].a3.y, currentClip);
+				mon.render(a[count].a4.x, a[count].a4.y, currentClip);
+				mon.render(a[count].ha.x, a[count].ha.y, currentClip);
+				mon.render(a[count].h3.x, a[count].h3.y, currentClip);
+				mon.render(a[count + 1].a4.x, a[count + 1].a4.y, currentClip);
+				mon.render(a[count + 1].h6.x, a[count + 1].h6.y, currentClip);
+				mon.render(a[count + 2].a4.x, a[count + 2].a4.y, currentClip);
+				mon.render(a[count + 3].h6.x, a[count + 3].h6.y, currentClip);
+				mon.render(a[count + 3].a4.x, a[count + 3].a4.y, currentClip);
+				mon.render(a[count + 4].a4.x, a[count + 4].a4.y, currentClip);
+				mon.render(a[count + 5].h6.x, a[count + 5].h6.y, currentClip);
+				mon.render(a[count + 5].a4.x, a[count + 5].a4.y, currentClip);
+				mon.render(a[count + 6].a4.x, a[count + 6].a4.y, currentClip);
 				if (count2 > 3) {
 					mon.render(a[count].h5.x, a[count].h5.y, currentClip);
 					mon.render(a[count].h6.x, a[count].h6.y, currentClip);
@@ -847,12 +993,12 @@ int main(int argc, char* args[])
 				}
 				if (time >= 0) {
 					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
-					SDL_RenderDrawRect(gRenderer, &a[count+6].a);
-					SDL_RenderDrawRect(gRenderer, &a[count+6].a1);
+					SDL_RenderDrawRect(gRenderer, &a[count + 6].a);
+					SDL_RenderDrawRect(gRenderer, &a[count + 6].a1);
 				}
 				if (time1 >= 0) {
 					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
-					SDL_RenderDrawRect(gRenderer, &a[count+6].a2);
+					SDL_RenderDrawRect(gRenderer, &a[count + 6].a2);
 				}
 				if (time2 >= 0) {
 					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
@@ -861,7 +1007,6 @@ int main(int argc, char* args[])
 				}
 				//Go to next frame
 				++frame;
-
 				//Cycle animation
 				if (frame / 4 >= WALKING_ANIMATION_FRAMES)
 				{
