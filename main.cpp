@@ -8,11 +8,9 @@ and may not be redistributed without written permission.*/
 #include <string>
 #include <SDL_mixer.h>
 
-
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-
 //A circle stucture
 struct Circle
 {
@@ -33,10 +31,6 @@ public:
 	//Loads image at specified path
 	bool loadFromFile(std::string path);
 
-#ifdef _SDL_TTF_H
-	//Creates image from font string
-	bool loadFromRenderedText(std::string textureText, SDL_Color textColor);
-#endif
 
 	//Deallocates texture
 	void free();
@@ -52,7 +46,7 @@ public:
 
 	//Renders texture at given point
 	void render(int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
-
+	void render2(int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
 	//Gets image dimensions
 	int getWidth();
 	int getHeight();
@@ -71,24 +65,23 @@ class Dot
 {
 public:
 	//The dimensions of the dot
-	static const int DOT_WIDTH = 10;
-	static const int DOT_HEIGHT = 10;
-
+	static const int DOT_WIDTH = 20;
+	static const int DOT_HEIGHT = 20;
+	static const int count999 = 0;
 	//Maximum axis velocity of the dot
-	static const int DOT_VEL = 1;
+	float DOT_VEL = 0.3;
 
 	//Initializes the variables
-	Dot(int x, int y);
-
+	Dot(float x, float y);
 	//Takes key presses and adjusts the dot's velocity
 	void handleEvent(SDL_Event& e);
 
 	//Moves the dot and checks collision
-	void move(SDL_Rect& square, Circle& circle);
-
+	int move(SDL_Rect& square, Circle& circle);
+	int move2(SDL_Rect& square, Circle& circle);
 	//Shows the dot on the screen
 	void render();
-
+	void render2();
 	//Gets collision circle
 	Circle& getCollider();
 
@@ -96,10 +89,9 @@ public:
 
 private:
 	//The X and Y offsets of the dot
-	int mPosX, mPosY;
-
+	float mPosX, mPosY;
 	//The velocity of the dot
-	int mVelX, mVelY;
+	float mVelX, mVelY;
 
 	//Dot's collision circle
 	Circle mCollider;
@@ -113,11 +105,9 @@ bool init();
 
 //Loads media
 bool loadMedia();
-
+bool loadMedia2();
 //Frees media and shuts down SDL
 void close();
-
-int state1();
 
 //Circle/Circle collision detector
 bool checkCollision(Circle& a, Circle& b);
@@ -127,31 +117,18 @@ bool checkCollision(Circle& a, SDL_Rect& b);
 
 //Calculates distance squared between two points
 double distanceSquared(int x1, int y1, int x2, int y2);
-
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
-//The music that will be played
-Mix_Music *gMusic = NULL;
-
-//The sound effects that will be used
-Mix_Chunk *gScratch = NULL;
-Mix_Chunk *gHigh = NULL;
-Mix_Chunk *gMedium = NULL;
-Mix_Chunk *gLow = NULL;
-
-const int var_animate = 4;
 //Scene textures
-SDL_Rect gSpriteClips[4];
-SDL_Rect spritebird[var_animate];
-LTexture hpbar;
 LTexture gDotTexture;
 LTexture gBGTexture;
 LTexture Oreo;
-
+LTexture mon;
+LTexture picbomb;
 LTexture::LTexture()
 {
 	//Initialize
@@ -159,6 +136,15 @@ LTexture::LTexture()
 	mWidth = 0;
 	mHeight = 0;
 }
+
+//The music that will be played
+Mix_Music *gMusic = NULL;
+
+//The sound effects that will be used
+Mix_Chunk *gScratch = NULL;
+Mix_Chunk *explodes = NULL;
+Mix_Chunk *gMedium = NULL;
+Mix_Chunk *gLow = NULL;
 
 LTexture::~LTexture()
 {
@@ -207,42 +193,6 @@ bool LTexture::loadFromFile(std::string path)
 	return mTexture != NULL;
 }
 
-#ifdef _SDL_TTF_H
-bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor)
-{
-	//Get rid of preexisting texture
-	free();
-
-	//Render text surface
-	SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText.c_str(), textColor);
-	if (textSurface != NULL)
-	{
-		//Create texture from surface pixels
-		mTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-		if (mTexture == NULL)
-		{
-			printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
-		}
-		else
-		{
-			//Get image dimensions
-			mWidth = textSurface->w;
-			mHeight = textSurface->h;
-		}
-
-		//Get rid of old surface
-		SDL_FreeSurface(textSurface);
-	}
-	else
-	{
-		printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
-	}
-
-
-	//Return success
-	return mTexture != NULL;
-}
-#endif
 
 void LTexture::free()
 {
@@ -289,7 +239,6 @@ void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* cen
 	//Render to screen
 	SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);
 }
-
 int LTexture::getWidth()
 {
 	return mWidth;
@@ -300,7 +249,7 @@ int LTexture::getHeight()
 	return mHeight;
 }
 
-Dot::Dot(int x, int y)
+Dot::Dot(float x, float y)
 {
 	//Initialize the offsets
 	mPosX = x;
@@ -316,7 +265,6 @@ Dot::Dot(int x, int y)
 	//Move collider relative to the circle
 	shiftColliders();
 }
-
 void Dot::handleEvent(SDL_Event& e)
 {
 	//If a key was pressed
@@ -345,63 +293,121 @@ void Dot::handleEvent(SDL_Event& e)
 	}
 }
 
+
 int y = 0;
-int frame = 0;
+int hp = 100;
 
-void Dot::move(SDL_Rect& square, Circle& circle)
+int Dot::move(SDL_Rect& square, Circle& circle)
 {
+
 	int x = 0;
-
-
 	//Move the dot left or right
 	mPosX += mVelX;
 	shiftColliders();
 
 	//If the dot collided or went too far to the left or right
-	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH) || checkCollision(mCollider, square) || checkCollision(mCollider, circle))
+	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
 	{
+		printf("wall");
 		//Move back
-		mPosY += mVelY + 30;
-		printf("hell");
+		mPosX -= mVelX + 3;
 		x++;
 		y++;
-		printf("[ %d ] ", y);
-		Mix_PlayChannel(-1, gHigh, 0);
-		if (x == 1) {
-			Oreo.render(0, 0);
-			SDL_RenderPresent(gRenderer);
-			shiftColliders();
+		if (mPosX <= 0) {
+			mPosX = 15;
 		}
-		else {
-			x = 0;
-		}
-		if (y >= 3) {
-			printf("gameover");
-		}
+		/*if (y >= 3) {
+		printf("gameover");
+		}*/
+		shiftColliders();
 	}
 
 	//Move the dot up or down
 	mPosY += mVelY;
 	shiftColliders();
-
+	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
+		printf("mon }} %d", hp);
+		mPosX -= mVelX + 10;
+		x = 1;
+		hp--;
+		Mix_PlayChannel(-1, gScratch, 0);
+	}
 	//If the dot collided or went too far up or down
-	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT) || checkCollision(mCollider, square) || checkCollision(mCollider, circle))
+	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
 	{
+		printf("wall");
 		//Move back
 		mPosY -= mVelY;
+		x++;
+		y++;
+		if (mPosY <= 0) {
+			mPosY = 15;
+		}
+		/*if (y >= 3) {
+		printf("gameover");
+		}*/
 		shiftColliders();
 	}
-
+	return x;
 }
+int Dot::move2(SDL_Rect& square, Circle& circle)
+{
+	int x = 0;
+	//Move the dot left or right
+	mPosX += mVelX;
+	shiftColliders();
+	//If the dot collided or went too far to the left or right
+	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
+	{
+		printf("wall");
+		//Move back
+		mPosX -= mVelX + 3;
+		y++;
+		if (mPosX <= 0) {
+			mPosX = 15;
+		}
+		/*if (y >= 3) {
+		printf("gameover");
+		}*/
+		shiftColliders();
+	}
+	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
+		printf("Bomb");
+		x = 1;
+		printf("%d", x);
+		Mix_PlayChannel(-1, explodes, 0);
 
-
+	}
+	//Move the dot up or down
+	mPosY += mVelY;
+	shiftColliders();
+	//If the dot collided or went too far up or down
+	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
+	{
+		printf("wall");
+		//Move back
+		mPosY -= mVelY;
+		y++;
+		if (mPosY <= 0) {
+			mPosY = 15;
+		}
+		/*if (y >= 3) {
+		printf("gameover");
+		}*/
+		shiftColliders();
+	}
+	return x;
+}
 void Dot::render()
 {
-
-	SDL_Rect* currentClip = &spritebird[frame / 4];
-	gDotTexture.render(mPosX - mCollider.r, mPosY - mCollider.r, currentClip);
+	//Show the dot
+	gDotTexture.render(mPosX - mCollider.r, mPosY - mCollider.r);
 }
-
+void Dot::render2()
+{
+	//Show the dot
+	mon.render(mPosX - mCollider.r, mPosY - mCollider.r);
+}
 Circle& Dot::getCollider()
 {
 	return mCollider;
@@ -461,104 +467,108 @@ bool init()
 					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
 					success = false;
 				}
-
-
 				//Initialize SDL_mixer
 				if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
 				{
 					printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
 					success = false;
 				}
-
 			}
 		}
 	}
 
 	return success;
 }
-
+const int WALKING_ANIMATION_FRAMES = 4, picbomb2 = 7;
+SDL_Rect gSpriteClips[WALKING_ANIMATION_FRAMES];
+SDL_Rect pic01[picbomb2];
 bool loadMedia()
 {
 	//Loading success flag
 	bool success = true;
 
 	//Load dot texture
-	if (!gDotTexture.loadFromFile("bird.png"))
+	if (!mon.loadFromFile("pig.png"))
 	{
-		printf("Failed to load dot texture!\n");
+		printf("Failed to load walking animation texture!\n");
 		success = false;
 	}
 	else
 	{
-		//Set top left sprite
-		spritebird[0].x = 0;
-		spritebird[0].y = 0;
-		spritebird[0].w = 75;
-		spritebird[0].h = 50;
+		//Set sprite clips
+		gSpriteClips[0].x = 0;
+		gSpriteClips[0].y = 0;
+		gSpriteClips[0].w = 37;
+		gSpriteClips[0].h = 37;
 
-		spritebird[1].x = 75;
-		spritebird[1].y = 0;
-		spritebird[1].w = 75;
-		spritebird[1].h = 50;
+		gSpriteClips[1].x = 0;
+		gSpriteClips[1].y = 37;
+		gSpriteClips[1].w = 37;
+		gSpriteClips[1].h = 37;
 
-		spritebird[2].x = 150;
-		spritebird[2].y = 0;
-		spritebird[2].w = 75;
-		spritebird[2].h = 50;
+		gSpriteClips[2].x = 0;
+		gSpriteClips[2].y = 74;
+		gSpriteClips[2].w = 37;
+		gSpriteClips[2].h = 37;
 
-		spritebird[3].x = 225;
-		spritebird[3].y = 0;
-		spritebird[3].w = 75;
-		spritebird[3].h = 50;
-
+		gSpriteClips[3].x = 0;
+		gSpriteClips[3].y = 111;
+		gSpriteClips[3].w = 37;
+		gSpriteClips[3].h = 37;
+	}
+	if (!picbomb.loadFromFile("bomb.png"))
+	{
+		printf("Failed to load dot texture!\n");
+		success = false;
+	}
+	else {
+		pic01[0].x = 0;
+		pic01[0].y = 0;
+		pic01[0].w = 167;
+		pic01[0].h = 158;
+		pic01[1].x = 167;
+		pic01[1].y = 0;
+		pic01[1].w = 167;
+		pic01[1].h = 158;
+		pic01[2].x = 334;
+		pic01[2].y = 0;
+		pic01[2].w = 167;
+		pic01[2].h = 158;
+		pic01[3].x = 0;
+		pic01[3].y = 316;
+		pic01[3].w = 167;
+		pic01[3].h = 158;
+		pic01[4].x = 167;
+		pic01[4].y = 316;
+		pic01[4].w = 167;
+		pic01[4].h = 158;
+		pic01[5].x = 334;
+		pic01[5].y = 316;
+		pic01[5].w = 167;
+		pic01[5].h = 158;
+		pic01[6].x = 0;
+		pic01[6].y = 474;
+		pic01[6].w = 167;
+		pic01[6].h = 158;
 
 	}
-
+	if (!gDotTexture.loadFromFile("dot.bmp"))
+	{
+		printf("Failed to load dot texture!\n");
+		success = false;
+	}
 	//Load dot texture
-	if (!Oreo.loadFromFile("29_circular_collision_detection/dot.bmp"))
+	if (!Oreo.loadFromFile("dot.bmp"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
 	}
 
 	//Load background texture
-	if (!gBGTexture.loadFromFile("31_scrolling_backgrounds/bg.png"))
+	if (!gBGTexture.loadFromFile("bg3.png"))
 	{
 		printf("Failed to load background texture!\n");
 		success = false;
-	}
-
-	//Load health bar texture
-	if (!hpbar.loadFromFile("Gradient_Health_Bar.png"))
-	{
-		printf("Failed to load background texture!\n");
-		success = false;
-	}
-	else
-	{
-		//Set top left sprite
-		gSpriteClips[0].x = 0;
-		gSpriteClips[0].y = 0;
-		gSpriteClips[0].w = 200;
-		gSpriteClips[0].h = 100;
-
-		//Set top right sprite
-		gSpriteClips[1].x = 200;
-		gSpriteClips[1].y = 0;
-		gSpriteClips[1].w = 200;
-		gSpriteClips[1].h = 100;
-
-		//Set bottom left sprite
-		gSpriteClips[2].x = 400;
-		gSpriteClips[2].y = 0;
-		gSpriteClips[2].w = 200;
-		gSpriteClips[2].h = 100;
-
-		//Set bottom right sprite
-		gSpriteClips[3].x = 600;
-		gSpriteClips[3].y = 0;
-		gSpriteClips[3].w = 200;
-		gSpriteClips[3].h = 100;
 	}
 
 	//Load music
@@ -570,15 +580,15 @@ bool loadMedia()
 	}
 
 	//Load sound effects
-	gScratch = Mix_LoadWAV("21_sound_effects_and_music/scratch.wav");
+	gScratch = Mix_LoadWAV("crush.wav");
 	if (gScratch == NULL)
 	{
 		printf("Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
 	}
 
-	gHigh = Mix_LoadWAV("21_sound_effects_and_music/high.wav");
-	if (gHigh == NULL)
+	explodes = Mix_LoadWAV("explode.wav");
+	if (explodes == NULL)
 	{
 		printf("Failed to load high sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
@@ -598,9 +608,13 @@ bool loadMedia()
 		success = false;
 	}
 
+
+
+
 	return success;
 }
 
+//Walking animation
 void close()
 {
 	//Free loaded images
@@ -608,18 +622,17 @@ void close()
 
 	//Free the sound effects
 	Mix_FreeChunk(gScratch);
-	Mix_FreeChunk(gHigh);
+	Mix_FreeChunk(explodes);
 	Mix_FreeChunk(gMedium);
 	Mix_FreeChunk(gLow);
 	gScratch = NULL;
-	gHigh = NULL;
+	explodes = NULL;
 	gMedium = NULL;
 	gLow = NULL;
 
 	//Free the music
 	Mix_FreeMusic(gMusic);
 	gMusic = NULL;
-
 
 
 	//Destroy window	
@@ -700,10 +713,29 @@ double distanceSquared(int x1, int y1, int x2, int y2)
 	int deltaY = y2 - y1;
 	return deltaX * deltaX + deltaY * deltaY;
 }
-
 int main(int argc, char* args[])
-{
-	//Start up SDL and create window
+{	//Start up SDL and create window
+	int i[5] = { 0,0,0,0,0 }, frame2[10] = {}, count = 0, count2 = 0, count3 = 0, count4 = 2, level = 2, value = 0, count5 = 4, frame = 0, time = 0, time1 = -1, time2 = -1, damage = 0, bossmove = 2, countbomb = 0;
+	struct aa {
+		SDL_Rect a{ 150,0,30,30 };
+		SDL_Rect a1{ 200,100,30,30 };
+		SDL_Rect a2{ 350,225,30,30 };
+		SDL_Rect a3{ 470,350,30,30 };
+		SDL_Rect a4{ 580,450,30,30 };
+		SDL_Rect ha{ 680,0,30,30 };
+		SDL_Rect h1{ 680,50,30,30 };
+		SDL_Rect h2{ 680,110,30,30 };
+		SDL_Rect h3{ 680,180,30,30 };
+		SDL_Rect h4{ 680,260,30,30 };
+		SDL_Rect h5{ 680,300,30,30 };
+		SDL_Rect h6{ 680,380,30,30 };
+		SDL_Rect h7{ 680,410,30,30 };
+		SDL_Rect boss{ 590,50,50,400 };
+		SDL_Rect bomb1{ 590,50,50,50 };
+		SDL_Rect bomb2{ 590,50,50,400 };
+		SDL_Rect bomb3{ 590,50,50,400 };
+		SDL_Rect bomb4{ 590,50,50,400 };
+	}a[99];
 	if (!init())
 	{
 		printf("Failed to initialize!\n");
@@ -723,37 +755,31 @@ int main(int argc, char* args[])
 			//Event handler
 			SDL_Event e;
 
-
 			//The background scrolling offset
 			int scrollingOffset = 0;
-			int blood = 1;
+
 			//The dot that will be moving around on the screen
 			Dot dot(Dot::DOT_WIDTH / 2, Dot::DOT_HEIGHT / 2);
-			Dot otherDot(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
-
-			//Set the wall
-			SDL_Rect wall;
-			wall.x = 300;
-			wall.y = 40;
-			wall.w = 40;
-			wall.h = 40;
-
-			SDL_Rect wall2;
-			wall2.x = 599;
-			wall2.y = 200;
-			wall2.w = 40;
-			wall2.h = 40;
-
-			SDL_Rect hp;
-			hp.x = 300;
-			hp.y = 300;
-			hp.w = 300;
-			hp.h = 40;
-
+			Dot otherDot(3000, 3000);
 			//While application is running
+			a[count + 1].a4.y = 30;
+			a[count + 1].h6.y = 65;
+			a[count + 2].a4.y = 150;
+			a[count + 3].a4.y = 30;
+			a[count + 3].h6.y = 65;
+			a[count + 4].a4.y = 150;
+			a[count + 3].a4.x = 900;
+			a[count + 3].h6.x = 900;
+			a[count + 4].a4.x = 900;
+			a[count + 5].a4.y = 210;
+			a[count + 5].h6.y = 250;
+			a[count + 6].a4.y = 280;
+			a[count + 5].a4.x = 900;
+			a[count + 5].h6.x = 900;
+			a[count + 6].a4.x = 900;
+			a[count + 7].a4.x = 500;
 			while (!quit)
 			{
-
 				//Handle events on queue
 				while (SDL_PollEvent(&e) != 0)
 				{
@@ -762,20 +788,9 @@ int main(int argc, char* args[])
 					{
 						quit = true;
 					}
+
 					//Handle input for the dot
 					dot.handleEvent(e);
-				}
-
-				wall2.x -= 5;
-				wall.x -= 5;
-
-
-				++frame;
-
-				//Cycle animation
-				if (frame / 4 >= var_animate)
-				{
-					frame = 0;
 				}
 				//Scroll background
 				--scrollingOffset;
@@ -783,47 +798,307 @@ int main(int argc, char* args[])
 				{
 					scrollingOffset = 0;
 				}
-
-				//Move the dot and check collision
-				dot.move(wall, otherDot.getCollider());
-				dot.move(wall2, otherDot.getCollider());
-
+				SDL_RenderClear(gRenderer);
 				//Clear screen
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 				SDL_RenderClear(gRenderer);
-
-
-
 				//Render background
 				gBGTexture.render(scrollingOffset, 0);
 				gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
+				//
+				//boss
+				a[0].boss.y -= bossmove;
+				if (a[0].boss.y <= 3)
+				{
+					bossmove = -2;
+				}
+				else if (a[0].boss.y == 80)
+				{
+					bossmove = 2;
+				}
+				//
+				a[count].a.x -= level;
+				a[count].a1.x -= level;
+				a[count].a2.x -= level;
+				a[count].a3.x -= level;
+				a[count].a4.x -= level;
+				a[count].h3.x -= level;
+				a[count].ha.x -= level;
+				a[count + 1].a4.x -= level;
+				a[count + 1].h6.x -= level;
+				a[count + 2].a4.x -= level;
+				a[count + 3].a4.x -= level;
+				a[count + 3].h6.x -= level;
+				a[count + 4].a4.x -= level;
+				a[count + 5].a4.x -= level;
+				a[count + 5].h6.x -= level;
+				a[count + 6].a4.x -= level;
+
+				//Move the dot and check collision
+				dot.move(a[count].boss, otherDot.getCollider());
+				dot.move(a[count].a, otherDot.getCollider());
+				dot.move(a[count].a1, otherDot.getCollider());
+				dot.move(a[count].a2, otherDot.getCollider());
+				dot.move(a[count].a3, otherDot.getCollider());
+				dot.move(a[count].a4, otherDot.getCollider());
+				dot.move(a[count].ha, otherDot.getCollider());
+				dot.move(a[count].h3, otherDot.getCollider());
+				dot.move(a[count + 1].a4, otherDot.getCollider());
+				dot.move(a[count + 1].h6, otherDot.getCollider());
+				dot.move(a[count + 2].a4, otherDot.getCollider());
+				dot.move(a[count + 3].a4, otherDot.getCollider());
+				dot.move(a[count + 3].h6, otherDot.getCollider());
+				dot.move(a[count + 4].a4, otherDot.getCollider());
+				dot.move(a[count + 5].a4, otherDot.getCollider());
+				dot.move(a[count + 5].h6, otherDot.getCollider());
+				dot.move(a[count + 6].a4, otherDot.getCollider());
+
+				//Level
+				if (count2 >2 && count2 < 5) {
+					level = 4;
+				}
+				if (count2 > 5) {
+					level = 7;
+				}
+				//This is a Bomb
+				if (count2 % 4 == 0) {
+					time = 1;
+				}
+				if (count2 % 4 == 1) {
+					time1 = 1;
+				}
+				if (count2 % 4 == 3) {
+					time2 = 1;
+				}
+				//
+				//position
+				if (time >= 0) {
+
+					a[count + 6].a.x -= 0;
+					a[count + 6].a1.x -= 0;
+					dot.move2(a[count + 6].a, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 6].a.x = 5000;
+						a[count + 6].a.y = 5000;
+						damage++;
+						frame2[0] = 1;
+					}
+					dot.move2(a[count + 6].a1, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a1, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 6].a1.x = 5000;
+						a[count + 6].a1.y = 5000;
+						damage++;
+						frame2[1] = 1;
+					}
+				}
+				if (time1 >= 0) {
+					a[count + 6].a2.x -= 0;
+					dot.move2(a[count + 6].a2, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a2, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 6].a2.x = 5000;
+						a[count + 6].a2.y = 5000;
+						damage++;
+						frame2[2] = 1;
+					}
+				}
+				if (time2 >= 0) {
+					a[count + 6].a3.x -= 0;
+					a[count + 7].a4.x -= 0;
+					dot.move2(a[count + 6].a3, otherDot.getCollider());
+					if (dot.move2(a[count + 6].a3, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 6].a3.x = 5000;
+						a[count + 6].a3.y = 5000;
+						damage++;
+						frame2[3] = 1;
+					}
+					dot.move2(a[count + 7].a4, otherDot.getCollider());
+					if (dot.move2(a[count + 7].a4, otherDot.getCollider()) == 1) { //cheak bird
+						a[count + 7].a4.x = 5000;
+						a[count + 7].a4.y = 5000;
+						damage++;
+						frame2[4] = 1;
+					}
+				}
+
+				//render picture bomb
+				if (frame2[0] == 1) {
+					SDL_Rect* p = &pic01[i[0] / 6];
+					i[0]++;
+					picbomb.render(500, 50, p);
+					if (i[0] == 150) {
+						frame2[0] += 2;
+					}
+				}
+				if (frame2[1] == 1) {
+					SDL_Rect* p = &pic01[i[1] / 6];
+					i[1]++;
+					picbomb.render(530, 100, p);
+					if (i[1] == 150) {
+						frame2[1] += 2;
+					}
+				}
+				if (frame2[2] == 1) {
+					SDL_Rect* p = &pic01[i[2] / 6];
+					i[2]++;
+					picbomb.render(520, 80, p);
+					if (i[2] == 150) {
+						frame2[2] += 2;
+					}
+				}
+				if (frame2[3] == 1) {
+					SDL_Rect* p = &pic01[i[3] / 6];
+					i[3]++;
+					picbomb.render(510, 10, p);
+					if (i[3] == 150) {
+						frame2[3] += 2;
+					}
+				}
+				if (frame2[4] == 1) {
+					SDL_Rect* p = &pic01[i[4] / 6];
+					i[4]++;
+					picbomb.render(520, 50, p);
+					if (i[4] == 150) {
+						frame2[4] += 2;
+					}
+				}
+				//
+				//
+				//kill boss
+				if (damage == 4) {
+					a[0].boss.x = 5000;
+				}
+				//
+
+				if (a[count].a.x < -30) {
+					count2++;
+					time = -1;
+					time1 = -1;
+					time2 = -1;
+					a[count].a.x = 1400;
+				}
+				if (a[count].a1.x < -30) {
+					a[count].a1.x = 680;
+				}
+				if (a[count].a2.x < -30) {
+					a[count].a2.x = 680;
+				}
+				if (a[count].a3.x < -30) {
+					a[count].a3.x = 680;
+				}
+				if (a[count].a4.x < -30) {
+					a[count].a4.x = 680;
+				}
+				if (a[count].ha.x < -30) {
+					a[count].ha.x = 680;
+				}
+				if (a[count].h3.x < -30) {
+					a[count].h3.x = 680;
+				}
+				if (a[count + 1].a4.x < -30) {
+					a[count + 1].a4.x = 1200;
+				}
+				if (a[count + 1].h6.x < -30) {
+					a[count + 1].h6.x = 1400;
+				}
+				if (a[count + 2].a4.x < -30) {
+					a[count + 2].a4.x = 2000;
+				}
+				if (a[count + 3].a4.x < -30) {
+					a[count + 3].a4.x = 3000;
+				}
+				if (a[count + 3].h6.x < -30) {
+					a[count + 3].h6.x = 3000;
+				}
+				if (a[count + 4].a4.x < -30) {
+					a[count + 4].a4.x = 3000;
+				}
+				if (a[count + 5].a4.x < -30) {
+					a[count + 5].a4.x = 3800;
+				}
+				if (a[count + 5].h6.x < -30) {
+					a[count + 5].h6.x = 3800;
+				}
+				if (a[count + 6].a4.x < -30) {
+					a[count + 6].a4.x = 3800;
+				}
+				if (count2 > 3) {
+					a[count].h5.x -= count4;
+					a[count].h6.x -= count4;
+					a[count].h7.x -= count4;
+					dot.move(a[count].h5, otherDot.getCollider());
+					dot.move(a[count].h6, otherDot.getCollider());
+					dot.move(a[count].h7, otherDot.getCollider());
+					if (a[count].a.x < -30) {
+						count2++;
+						a[count].h5.x = 2100;
+					}
+					if (a[count].h6.x < -30) {
+						a[count].h6.x = 1300;
+					}
+					if (a[count].h7.x < -30) {
+						a[count].h7.x = 1300;
+					}
+				}
+
+
+
+
 
 				//Render wall
+				//boss
 				SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
-				SDL_RenderDrawRect(gRenderer, &wall);
+				SDL_RenderDrawRect(gRenderer, &a[0].boss);
+				//
+				//Render current frame
+				SDL_Rect* currentClip = &gSpriteClips[frame / 4];
+				mon.render(a[count].a.x, a[count].a.y, currentClip);
+				mon.render(a[count].a1.x, a[count].a1.y, currentClip);
+				mon.render(a[count].a2.x, a[count].a2.y, currentClip);
+				mon.render(a[count].a3.x, a[count].a3.y, currentClip);
+				mon.render(a[count].a4.x, a[count].a4.y, currentClip);
+				mon.render(a[count].ha.x, a[count].ha.y, currentClip);
+				mon.render(a[count].h3.x, a[count].h3.y, currentClip);
+				mon.render(a[count + 1].a4.x, a[count + 1].a4.y, currentClip);
+				mon.render(a[count + 1].h6.x, a[count + 1].h6.y, currentClip);
+				mon.render(a[count + 2].a4.x, a[count + 2].a4.y, currentClip);
+				mon.render(a[count + 3].h6.x, a[count + 3].h6.y, currentClip);
+				mon.render(a[count + 3].a4.x, a[count + 3].a4.y, currentClip);
+				mon.render(a[count + 4].a4.x, a[count + 4].a4.y, currentClip);
+				mon.render(a[count + 5].h6.x, a[count + 5].h6.y, currentClip);
+				mon.render(a[count + 5].a4.x, a[count + 5].a4.y, currentClip);
+				mon.render(a[count + 6].a4.x, a[count + 6].a4.y, currentClip);
+				if (count2 > 3) {
+					mon.render(a[count].h5.x, a[count].h5.y, currentClip);
+					mon.render(a[count].h6.x, a[count].h6.y, currentClip);
+					mon.render(a[count].h7.x, a[count].h7.y, currentClip);
+				}
+				if (time >= 0) {
+					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+					SDL_RenderDrawRect(gRenderer, &a[count + 6].a);
+					SDL_RenderDrawRect(gRenderer, &a[count + 6].a1);
+				}
+				if (time1 >= 0) {
+					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+					SDL_RenderDrawRect(gRenderer, &a[count + 6].a2);
+				}
+				if (time2 >= 0) {
+					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+					SDL_RenderDrawRect(gRenderer, &a[count + 6].a3);
+					SDL_RenderDrawRect(gRenderer, &a[count + 7].a4);
+				}
+				//Go to next frame
+				++frame;
+				//Cycle animation
+				if (frame / 4 >= WALKING_ANIMATION_FRAMES)
+				{
+					frame = 0;
+				}
 
-				//render health bar
-				if (y <= 1) {
-					hpbar.render(0, 0, &gSpriteClips[0]);
-				}
-				else if (y == 2) {
-					hpbar.render(0, 0, &gSpriteClips[1]);
-				}
-				else if (y == 3) {
-					hpbar.render(0, 0, &gSpriteClips[2]);
-				}
-				else if (y == 4) {
-					hpbar.render(0, 0, &gSpriteClips[3]);
-				}
 
-				SDL_RenderDrawRect(gRenderer, &wall2);
-				if (blood == 1) {
-					SDL_RenderDrawRect(gRenderer, &hp);
-				}
+
 				//Render dots
 				dot.render();
 				otherDot.render();
-
 				//Update screen
 				SDL_RenderPresent(gRenderer);
 			}
@@ -831,7 +1106,7 @@ int main(int argc, char* args[])
 	}
 
 	//Free resources and close SDL
+	close();
 
 	return 0;
 }
-
