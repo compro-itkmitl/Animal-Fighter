@@ -8,9 +8,10 @@ and may not be redistributed without written permission.*/
 #include <string>
 #include <SDL_mixer.h>
 
+
 //Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 700;
+const int SCREEN_HEIGHT = 540;
 //A circle stucture
 struct Circle
 {
@@ -67,7 +68,7 @@ public:
 	//The dimensions of the dot
 	static const int DOT_WIDTH = 20;
 	static const int DOT_HEIGHT = 20;
-	static const int count999 = 0;
+	static const int count999 = 20;
 	//Maximum axis velocity of the dot
 	float DOT_VEL = 0.3;
 
@@ -80,7 +81,7 @@ public:
 	int move(SDL_Rect& square, Circle& circle);
 	int move2(SDL_Rect& square, Circle& circle);
 	//Shows the dot on the screen
-	void render();
+	void render(int bird);
 	void render2();
 	//Gets collision circle
 	Circle& getCollider();
@@ -123,12 +124,30 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
+//The music that will be played
+Mix_Music *gMusic = NULL;
+
+//The sound effects that will be used
+Mix_Chunk *gScratch = NULL;
+Mix_Chunk *gHigh = NULL;
+Mix_Chunk *gMedium = NULL;
+Mix_Chunk *gLow = NULL;
+
+int hp = 100;
+
+
+LTexture hpbar1, hpbar2, hpbar3, hpbar4, hpbar5, hpbar6;
+
 //Scene textures
 LTexture gDotTexture;
+const int picbird = 4;
+SDL_Rect bird1[picbird];
 LTexture gBGTexture;
 LTexture Oreo;
 LTexture mon;
 LTexture picbomb;
+LTexture gboom;
+LTexture gtower;
 LTexture::LTexture()
 {
 	//Initialize
@@ -136,15 +155,6 @@ LTexture::LTexture()
 	mWidth = 0;
 	mHeight = 0;
 }
-
-//The music that will be played
-Mix_Music *gMusic = NULL;
-
-//The sound effects that will be used
-Mix_Chunk *gScratch = NULL;
-Mix_Chunk *explodes = NULL;
-Mix_Chunk *gMedium = NULL;
-Mix_Chunk *gLow = NULL;
 
 LTexture::~LTexture()
 {
@@ -292,14 +302,9 @@ void Dot::handleEvent(SDL_Event& e)
 		}
 	}
 }
-
-
 int y = 0;
-int hp = 100;
-
 int Dot::move(SDL_Rect& square, Circle& circle)
 {
-
 	int x = 0;
 	//Move the dot left or right
 	mPosX += mVelX;
@@ -326,11 +331,11 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 	mPosY += mVelY;
 	shiftColliders();
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
-		printf("mon }} %d", hp);
+		Mix_PlayChannel(-1, gHigh, 0);
+		printf("mon");
 		mPosX -= mVelX + 10;
-		x = 1;
 		hp--;
-		Mix_PlayChannel(-1, gScratch, 0);
+		x = 1;
 	}
 	//If the dot collided or went too far up or down
 	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
@@ -374,8 +379,8 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
 		printf("Bomb");
 		x = 1;
+		Mix_PlayChannel(-1, gHigh, 0);
 		printf("%d", x);
-		Mix_PlayChannel(-1, explodes, 0);
 
 	}
 	//Move the dot up or down
@@ -398,10 +403,10 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	}
 	return x;
 }
-void Dot::render()
+void Dot::render(int bird)
 {
-	//Show the dot
-	gDotTexture.render(mPosX - mCollider.r, mPosY - mCollider.r);
+	SDL_Rect* bird01 = &bird1[bird / 4];
+	gDotTexture.render(mPosX - mCollider.r, mPosY - mCollider.r, bird01);
 }
 void Dot::render2()
 {
@@ -473,6 +478,7 @@ bool init()
 					printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
 					success = false;
 				}
+
 			}
 		}
 	}
@@ -488,33 +494,45 @@ bool loadMedia()
 	bool success = true;
 
 	//Load dot texture
-	if (!mon.loadFromFile("pig.png"))
+	if (!mon.loadFromFile("ani-two.png"))
 	{
 		printf("Failed to load walking animation texture!\n");
 		success = false;
 	}
+
+
+	if (!gtower.loadFromFile("tower.png"))
+	{
+		printf("Fail to loada tower.png");
+		success = false;
+	}
+
 	else
 	{
-		//Set sprite clips
 		gSpriteClips[0].x = 0;
 		gSpriteClips[0].y = 0;
-		gSpriteClips[0].w = 37;
-		gSpriteClips[0].h = 37;
+		gSpriteClips[0].w = 57;
+		gSpriteClips[0].h = 44;
 
-		gSpriteClips[1].x = 0;
-		gSpriteClips[1].y = 37;
-		gSpriteClips[1].w = 37;
-		gSpriteClips[1].h = 37;
+		gSpriteClips[1].x = 57;
+		gSpriteClips[1].y = 0;
+		gSpriteClips[1].w = 57;
+		gSpriteClips[1].h = 44;
 
 		gSpriteClips[2].x = 0;
-		gSpriteClips[2].y = 74;
-		gSpriteClips[2].w = 37;
-		gSpriteClips[2].h = 37;
+		gSpriteClips[2].y = 0;
+		gSpriteClips[2].w = 57;
+		gSpriteClips[2].h = 44;
 
-		gSpriteClips[3].x = 0;
-		gSpriteClips[3].y = 111;
-		gSpriteClips[3].w = 37;
-		gSpriteClips[3].h = 37;
+		gSpriteClips[3].x = 57;
+		gSpriteClips[3].y = 0;
+		gSpriteClips[3].w = 57;
+		gSpriteClips[3].h = 44;
+
+		gSpriteClips[4].x = 0;
+		gSpriteClips[4].y = 0;
+		gSpriteClips[4].w = 57;
+		gSpriteClips[4].h = 44;
 	}
 	if (!picbomb.loadFromFile("bomb.png"))
 	{
@@ -552,10 +570,31 @@ bool loadMedia()
 		pic01[6].h = 158;
 
 	}
-	if (!gDotTexture.loadFromFile("dot.bmp"))
+	if (!gDotTexture.loadFromFile("ani-one.png"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
+	}
+	else {
+		bird1[0].x = 0;
+		bird1[0].y = 0;
+		bird1[0].w = 67;
+		bird1[0].h = 67;
+	
+		bird1[1].x = 65;
+		bird1[1].y = 0;
+		bird1[1].w = 65;
+		bird1[1].h = 67;
+		
+		bird1[2].x = 132;
+		bird1[2].y = 0;
+		bird1[2].w = 65;
+		bird1[2].h = 67;
+		
+		bird1[3].x = 65;
+		bird1[3].y = 0;
+		bird1[3].w = 65;
+		bird1[3].h = 67;
 	}
 	//Load dot texture
 	if (!Oreo.loadFromFile("dot.bmp"))
@@ -571,24 +610,17 @@ bool loadMedia()
 		success = false;
 	}
 
-	//Load music
-	gMusic = Mix_LoadMUS("21_sound_effects_and_music/beat.wav");
-	if (gMusic == NULL)
-	{
-		printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
-		success = false;
-	}
 
 	//Load sound effects
-	gScratch = Mix_LoadWAV("crush.wav");
+	gScratch = Mix_LoadWAV("21_sound_effects_and_music/scratch.wav");
 	if (gScratch == NULL)
 	{
 		printf("Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
 	}
 
-	explodes = Mix_LoadWAV("explode.wav");
-	if (explodes == NULL)
+	gHigh = Mix_LoadWAV("21_sound_effects_and_music/high.wav");
+	if (gHigh == NULL)
 	{
 		printf("Failed to load high sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
@@ -608,6 +640,41 @@ bool loadMedia()
 		success = false;
 	}
 
+	if (!hpbar1.loadFromFile("hptap1.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar2.loadFromFile("hptap2.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar4.loadFromFile("hptap4.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar5.loadFromFile("hptap5.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar6.loadFromFile("hptap6.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!gboom.loadFromFile("boom.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
 
 
 
@@ -622,11 +689,11 @@ void close()
 
 	//Free the sound effects
 	Mix_FreeChunk(gScratch);
-	Mix_FreeChunk(explodes);
+	Mix_FreeChunk(gHigh);
 	Mix_FreeChunk(gMedium);
 	Mix_FreeChunk(gLow);
 	gScratch = NULL;
-	explodes = NULL;
+	gHigh = NULL;
 	gMedium = NULL;
 	gLow = NULL;
 
@@ -810,12 +877,13 @@ int main(int argc, char* args[])
 				a[0].boss.y -= bossmove;
 				if (a[0].boss.y <= 3)
 				{
-					bossmove = -2;
+					bossmove = -1;
 				}
 				else if (a[0].boss.y == 80)
 				{
 					bossmove = 2;
 				}
+
 				//
 				a[count].a.x -= level;
 				a[count].a1.x -= level;
@@ -1051,6 +1119,9 @@ int main(int argc, char* args[])
 				//
 				//Render current frame
 				SDL_Rect* currentClip = &gSpriteClips[frame / 4];
+
+
+
 				mon.render(a[count].a.x, a[count].a.y, currentClip);
 				mon.render(a[count].a1.x, a[count].a1.y, currentClip);
 				mon.render(a[count].a2.x, a[count].a2.y, currentClip);
@@ -1071,20 +1142,38 @@ int main(int argc, char* args[])
 					mon.render(a[count].h5.x, a[count].h5.y, currentClip);
 					mon.render(a[count].h6.x, a[count].h6.y, currentClip);
 					mon.render(a[count].h7.x, a[count].h7.y, currentClip);
+					
 				}
+				
+				
+				
 				if (time >= 0) {
-					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+					SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
 					SDL_RenderDrawRect(gRenderer, &a[count + 6].a);
 					SDL_RenderDrawRect(gRenderer, &a[count + 6].a1);
+
+					gboom.render(a[count + 25].a.x -12, a[count + 6].a.y - 30);
+					gboom.render(a[count + 25].a1.x -12, a[count + 6].a1.y - 30);
+
+				
 				}
 				if (time1 >= 0) {
-					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+					SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
 					SDL_RenderDrawRect(gRenderer, &a[count + 6].a2);
+
+
+					gboom.render(a[count + 6].a2.x -12, a[count + 6].a2.y -30);
+
 				}
 				if (time2 >= 0) {
-					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+					SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
 					SDL_RenderDrawRect(gRenderer, &a[count + 6].a3);
 					SDL_RenderDrawRect(gRenderer, &a[count + 7].a4);
+
+
+					gboom.render(a[count + 6].a3.x-12, a[count + 6].a3.y-30);
+
+					gboom.render(a[count + 7].a4.x-12, a[count + 7].a4.y-30);
 				}
 				//Go to next frame
 				++frame;
@@ -1095,10 +1184,45 @@ int main(int argc, char* args[])
 				}
 
 
+				if (damage == 0) {
+					hpbar1.render(560, 500);
+				}
+				else if (damage == 1) {
+					hpbar2.render(560, 500);
+				}
+				else if (damage == 2) {
+					hpbar4.render(560, 500);
+				}
+				else if (damage == 3) {
+					hpbar5.render(560, 500);
 
+				}
+				else if (damage == 4) {
+					hpbar6.render(560, 500);
+				}
+				
+
+				if (hp >= 90) {
+					hpbar1.render(0, 500);
+				}
+				else if (hp >= 70) {
+					hpbar2.render(0, 500);
+				}
+				else if (hp >= 30) {
+					hpbar4.render(0, 500);
+				}
+				else if (hp >= 20) {
+					hpbar5.render(0, 500);
+
+				}
+				else if (hp < 20) {
+					hpbar6.render(0, 500);
+
+				}
+
+				gtower.render(a[0].boss.x - 80, a[0].boss.y);
 				//Render dots
-				dot.render();
-				otherDot.render();
+				dot.render(frame);
 				//Update screen
 				SDL_RenderPresent(gRenderer);
 			}
