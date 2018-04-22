@@ -1218,20 +1218,13 @@ int main(int argc, char* args[])
 						}
 					}
 
-
-
-
-
-					//Render wall
-					//boss
+					//Render collisoin boss
 					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
 					SDL_RenderDrawRect(gRenderer, &a[0].boss);
 					//
 					//Render current frame
 					SDL_Rect* currentClip = &gSpriteClips[frame / 4];
-
-
-
+					// monster render
 					mon.render(a[count].a.x, a[count].a.y, currentClip);
 					mon.render(a[count].a1.x, a[count].a1.y, currentClip);
 					mon.render(a[count].a2.x, a[count].a2.y, currentClip);
@@ -1254,9 +1247,7 @@ int main(int argc, char* args[])
 						mon.render(a[count].h7.x, a[count].h7.y, currentClip);
 
 					}
-
-
-
+					// render bomb
 					if (time >= 0) {
 						SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
 						SDL_RenderDrawRect(gRenderer, &a[count + 6].a);
@@ -1264,8 +1255,7 @@ int main(int argc, char* args[])
 
 						gboom.render(a[count + 25].a.x - 12, a[count + 6].a.y - 30);
 						gboom.render(a[count + 25].a1.x - 12, a[count + 6].a1.y - 30);
-
-
+					// render bomb
 					}
 					if (time1 >= 0) {
 						SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
@@ -1274,15 +1264,14 @@ int main(int argc, char* args[])
 
 						gboom.render(a[count + 6].a2.x - 12, a[count + 6].a2.y - 30);
 
+						// render bomb
 					}
 					if (time2 >= 0) {
 						SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
 						SDL_RenderDrawRect(gRenderer, &a[count + 6].a3);
 						SDL_RenderDrawRect(gRenderer, &a[count + 7].a4);
 
-
 						gboom.render(a[count + 6].a3.x - 12, a[count + 6].a3.y - 30);
-
 						gboom.render(a[count + 7].a4.x - 12, a[count + 7].a4.y - 30);
 					}
 					//Go to next frame
@@ -1293,7 +1282,7 @@ int main(int argc, char* args[])
 						frame = 0;
 					}
 
-
+					// render boss health bar
 					if (damage == 0) {
 						hpbar1.render(560, 500);
 					}
@@ -1311,7 +1300,7 @@ int main(int argc, char* args[])
 						hpbar6.render(560, 500);
 					}
 
-
+					// render hero health bar
 					if (hp >= 50) {
 						hpbar1.render(0, 500);
 					}
@@ -1334,8 +1323,9 @@ int main(int argc, char* args[])
 						menubar = 3;
 					}
 
-					printf("%d", hp);
+					// reder tower(boss img)
 					gtower.render(a[0].boss.x - 80, a[0].boss.y);
+					
 					//Render dots
 					dot.render(frame);
 					//Update screen
