@@ -1125,6 +1125,7 @@ int main(int argc, char* args[])
 					if (damage == 4) {
 						a[0].boss.x = 5000;
 						Mix_HaltMusic();
+						SDL_Delay(3000);
 						menubar++;
 						
 					}
@@ -1308,16 +1309,16 @@ int main(int argc, char* args[])
 						hpbar5.render(0, 500);
 
 					}
-					else if (hp < 5 ) {
+					else if (hp >= 5 ) {
 						hpbar6.render(0, 500);
 
-					}
-					
-					if (hp == 0) {
+					}else if (hp >= 0) {
+						hpbar6.render(0, 500);
 						Mix_HaltMusic();
 						menubar = 3;
 					}
 
+					printf("%d", hp);
 					gtower.render(a[0].boss.x - 80, a[0].boss.y);
 					//Render dots
 					dot.render(frame);
