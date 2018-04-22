@@ -23,11 +23,13 @@
 
 # Screen Shot 
 
-<p align="center"> <img src="graphics/1.png" width="500"/></p>
-<p align="center"> <img src="graphics/2.png" width="500"/></p>
-<p align="center"> <img src="graphics/3.png" width="500"/></p>
-<p align="center"> <img src="graphics/4.png" width="500"/></p>
+![](/graphics/1.png)
 
+![](/graphics/2.png)
+
+![](/graphics/3.png)
+
+![](/graphics/4.png)
 
 
 
