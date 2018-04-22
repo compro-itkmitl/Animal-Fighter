@@ -21,6 +21,16 @@
 3. หลบหลีกสัตว์ร้าย 
 4. เก็บระเบิดเพื่อทำลายป้อมศัตรู
 
+# Screen Shot 
+
+<p align="center"> <img src="graphics/1.png" width="500"/></p>
+<p align="center"> <img src="graphics/2.png" width="500"/></p>
+<p align="center"> <img src="graphics/3.png" width="500"/></p>
+<p align="center"> <img src="graphics/4.png" width="500"/></p>
+
+
+
+
 # ![](/Resource/Person.png) Team Members
 |  |Name|Surname|GitHub Username|Student ID|
 |:-:|--|------|---------------|---------|
