@@ -151,6 +151,10 @@ LTexture mon;
 LTexture picbomb;
 LTexture gboom;
 LTexture gtower;
+
+LTexture gameover;
+LTexture gamewin;
+
 LTexture gmenubar1, gmenubar2, gmenubar3;
 LTexture::LTexture()
 {
@@ -609,6 +613,19 @@ bool loadMedia()
 
 	//Load background texture
 	if (!gBGTexture.loadFromFile("bg3.png"))
+	{
+		printf("Failed to load background texture!\n");
+		success = false;
+	}
+
+	if (!gamewin.loadFromFile("gamewin.png"))
+	{
+		printf("Failed to load background texture!\n");
+		success = false;
+
+	}
+
+	if (!gameover.loadFromFile("gameover.png"))
 	{
 		printf("Failed to load background texture!\n");
 		success = false;
@@ -1366,7 +1383,7 @@ int main(int argc, char* args[])
 					gBGTexture.render(scrollingOffset, 0);
 					gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
 
-					gmenubar1.render(0, 0);
+					gamewin.render(0, 0);
 					//Update screen
 					SDL_RenderPresent(gRenderer);
 				}
@@ -1409,17 +1426,13 @@ int main(int argc, char* args[])
 				gBGTexture.render(scrollingOffset, 0);
 				gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
 
-				gmenubar1.render(0, 0);
+				gameover.render(0, 0);
 				//Update screen
 				SDL_RenderPresent(gRenderer);
-			}
-			
+			}	
 		}
-
-
 	}
 	//Free resources and close SDL
 	close();
-
 	return 0;
 }
