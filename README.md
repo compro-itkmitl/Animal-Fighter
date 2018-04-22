@@ -44,8 +44,6 @@ interface ต่างๆ ภายในเกม
 <p align="left"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/3.PNG?raw=true" width="400"></p>
 <p align="left"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/4.PNG?raw=true" width="400"></p>
 
-
-
 # ![](/Resource/Person.png) Team Members
 |  |Name|Surname|GitHub Username|Student ID|
 |:-:|--|------|---------------|---------|
@@ -60,4 +58,7 @@ interface ต่างๆ ภายในเกม
 |![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Oong.png)|![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Panwit.png)|
 
 รายงานนี้เป็นส่วนหนึ่งของวิชา Computer Programming : Information Technology @KMITL
+
+---
+
 
