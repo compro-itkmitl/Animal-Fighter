@@ -1,3 +1,0 @@
-﻿  main.cpp
-c:\users\ifacker\source\repos\animal-fighter\animal-fighter\main.cpp(5): fatal error C1083: Cannot open include file: 'SDL.h': No such file or directory
-  Source.cpp
