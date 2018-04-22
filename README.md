@@ -1,2 +1,2 @@
 # Animal-Fighter
-  <img src="graphics/hptap1.png" width="350"/>
+  <img src="graphics/forgit1.png" width="350"/>
