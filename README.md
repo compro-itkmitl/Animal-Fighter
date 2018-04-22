@@ -21,6 +21,15 @@
 3. หลบหลีกสัตว์ร้าย 
 4. เก็บระเบิดเพื่อทำลายป้อมศัตรู
 
+# Screen Shot 
+
+<p align="center"> <img src="graphics/1.png" width="400"/></p>
+<p align="center"> <img src="graphics/2.png" width="400"/></p>
+<p align="center"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/3.PNG?raw=true" width="400"></p>
+<p align="center"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/4.PNG?raw=true" width="400"></p>
+
+
+
 # ![](/Resource/Person.png) Team Members
 |  |Name|Surname|GitHub Username|Student ID|
 |:-:|--|------|---------------|---------|
