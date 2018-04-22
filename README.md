@@ -26,14 +26,23 @@
 1. เมื่อเปิดเกมส์ให้ กด **Enter** เพื่อเข้าเกมส์
 2. ใช้ปุ่มลูกศร เพื่อเคลื่อนที่
 3. หลบหลีกสัตว์ร้าย 
-4. เก็บระเบิดเพื่อทำลายป้อมศัตรู
+4. เก็บระเบิดเพื่อทำลายป้อมศัตรู<br>
+
+interface ต่างๆ ภายในเกม
+<p align="left"> <img src="graphics/2.png" width="400"/></p>
+1. ตัวละครของเรา<br>
+2. สัตว์ร้ายที่ต้องหลบ<br>
+3-4. ทางซ้ายคือแถบเลือดของเรา ทางขวาแถบเลือดของ Boss (ป้อม)<br>
+5. Boss<br>
+6. ระเบิด ที่ต้องเก็บเพื่อจัดการ Boss<br>
+
 
 # Screen Shot 
 
-<p align="center"> <img src="graphics/1.png" width="400"/></p>
-<p align="center"> <img src="graphics/2.png" width="400"/></p>
-<p align="center"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/3.PNG?raw=true" width="400"></p>
-<p align="center"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/4.PNG?raw=true" width="400"></p>
+<p align="left"> <img src="graphics/1.png" width="400"/></p>
+
+<p align="left"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/3.PNG?raw=true" width="400"></p>
+<p align="left"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/4.PNG?raw=true" width="400"></p>
 
 
 
