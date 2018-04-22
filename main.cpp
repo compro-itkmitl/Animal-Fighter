@@ -127,11 +127,14 @@ SDL_Renderer* gRenderer = NULL;
 //The music that will be played
 Mix_Music *musicstart = NULL;
 Mix_Music *musicgameplay = NULL;
+Mix_Music *music_victory = NULL;
+Mix_Music *music_lose = NULL;
 
 
 //The sound effects that will be used
 Mix_Chunk *sound_crush = NULL;
 Mix_Chunk *sound_explode = NULL;
+
 
 int hp = 100;
 
@@ -634,6 +637,24 @@ bool loadMedia()
 		success = false;
 	}
 
+	music_victory = Mix_LoadMUS("victory_sound.wav");
+	if (music_victory == NULL)
+	{
+		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+
+	music_lose = Mix_LoadMUS("lose_sound.wav");
+	if (music_lose == NULL)
+	{
+		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+
+
+	
 	sound_explode = Mix_LoadWAV("explode.wav");
 	if (sound_explode == NULL)
 	{
@@ -699,6 +720,7 @@ void close()
 	Mix_FreeChunk(sound_crush);
 
 	Mix_FreeChunk(sound_explode);
+
 	musicgameplay = NULL;
 	sound_crush = NULL;
 	musicstart = NULL;
@@ -708,10 +730,10 @@ void close()
 	Mix_FreeMusic(musicstart);
 	musicstart = NULL;
 
-
 	//Free the music
 	Mix_FreeMusic(musicgameplay);
 	musicgameplay = NULL;
+
 
 	//Destroy window	
 	SDL_DestroyRenderer(gRenderer);
@@ -1102,7 +1124,9 @@ int main(int argc, char* args[])
 					//kill boss
 					if (damage == 4) {
 						a[0].boss.x = 5000;
+						Mix_HaltMusic();
 						menubar++;
+						
 					}
 					//
 
@@ -1315,6 +1339,10 @@ int main(int argc, char* args[])
 					}
 
 
+					if (Mix_PlayingMusic() == 0) {
+						Mix_PlayMusic(music_lose, -1);
+					}
+
 					//Scroll background
 					--scrollingOffset;
 					if (scrollingOffset < -gBGTexture.getWidth())
@@ -1335,6 +1363,46 @@ int main(int argc, char* args[])
 					//Update screen
 					SDL_RenderPresent(gRenderer);
 				}
+
+
+			while (menubar == 3 && !quit)
+			{
+				//Handle events on queue
+				while (SDL_PollEvent(&e) != 0)
+				{
+					//User requests quit
+					if (e.type == SDL_QUIT)
+					{
+						quit = true;
+					}
+
+					if (e.key.keysym.sym == SDLK_RETURN) {
+						menubar++;
+					}
+
+				}
+
+
+				//Scroll background
+				--scrollingOffset;
+				if (scrollingOffset < -gBGTexture.getWidth())
+				{
+					scrollingOffset = 0;
+				}
+
+				printf("%d", menubar);
+
+
+				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_RenderClear(gRenderer);
+				//Render background
+				gBGTexture.render(scrollingOffset, 0);
+				gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
+
+				gmenubar1.render(0, 0);
+				//Update screen
+				SDL_RenderPresent(gRenderer);
+			}
 			
 		}
 
