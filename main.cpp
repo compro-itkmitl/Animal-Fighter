@@ -2,14 +2,17 @@
 and may not be redistributed without written permission.*/
 
 //Using SDL, SDL_image, standard IO, vectors, and strings
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL.h> // main sdl lib
+#include <SDL_image.h> // convert img lib
 #include <stdio.h>
 #include <string>
+#include <SDL_mixer.h> // sound lib
+
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 700;
+const int SCREEN_HEIGHT = 540;
+
 //A circle stucture
 struct Circle
 {
@@ -30,7 +33,6 @@ public:
 	//Loads image at specified path
 	bool loadFromFile(std::string path);
 
-
 	//Deallocates texture
 	void free();
 
@@ -46,6 +48,7 @@ public:
 	//Renders texture at given point
 	void render(int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
 	void render2(int x, int y, SDL_Rect* clip = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
+	
 	//Gets image dimensions
 	int getWidth();
 	int getHeight();
@@ -63,33 +66,37 @@ private:
 class Dot
 {
 public:
+	
 	//The dimensions of the dot
 	static const int DOT_WIDTH = 20;
 	static const int DOT_HEIGHT = 20;
-	static const int count999 = 0;
-	//Maximum axis velocity of the dot
+	static const int count999 = 20;
+
+	//speed of the dot
 	float DOT_VEL = 0.3;
 
 	//Initializes the variables
 	Dot(float x, float y);
-	//Takes key presses and adjusts the dot's velocity
+	
+	//Takes key presses and adjusts the dot's speed
 	void handleEvent(SDL_Event& e);
 
 	//Moves the dot and checks collision
 	int move(SDL_Rect& square, Circle& circle);
 	int move2(SDL_Rect& square, Circle& circle);
+	
 	//Shows the dot on the screen
-	void render();
+	void render(int bird);
 	void render2();
+	
 	//Gets collision circle
 	Circle& getCollider();
-
-
 
 private:
 	//The X and Y offsets of the dot
 	float mPosX, mPosY;
-	//The velocity of the dot
+	
+	//The speed of the dot
 	float mVelX, mVelY;
 
 	//Dot's collision circle
@@ -105,6 +112,7 @@ bool init();
 //Loads media
 bool loadMedia();
 bool loadMedia2();
+
 //Frees media and shuts down SDL
 void close();
 
@@ -117,17 +125,44 @@ bool checkCollision(Circle& a, SDL_Rect& b);
 //Calculates distance squared between two points
 double distanceSquared(int x1, int y1, int x2, int y2);
 //The window we'll be rendering to
+
 SDL_Window* gWindow = NULL;
 
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
+//The music that will be played
+Mix_Music *musicstart = NULL;
+Mix_Music *musicgameplay = NULL;
+Mix_Music *music_victory = NULL;
+Mix_Music *music_lose = NULL;
+
+
+//The sound effects that will be used
+Mix_Chunk *sound_crush = NULL;
+Mix_Chunk *sound_explode = NULL;
+
+// health of hero
+int hp = 50;
+
+// health bar
+LTexture hpbar1, hpbar2, hpbar3, hpbar4, hpbar5, hpbar6;
+
 //Scene textures
 LTexture gDotTexture;
+const int picbird = 4;
+SDL_Rect bird1[picbird];
 LTexture gBGTexture;
 LTexture Oreo;
 LTexture mon;
 LTexture picbomb;
+LTexture gboom;
+LTexture gtower;
+
+LTexture gameover;
+LTexture gamewin;
+
+LTexture gmenubar1, gmenubar2, gmenubar3;
 LTexture::LTexture()
 {
 	//Initialize
@@ -311,8 +346,10 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 	mPosY += mVelY;
 	shiftColliders();
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
+		Mix_PlayChannel(-1, sound_crush, 0);
 		printf("mon");
 		mPosX -= mVelX + 10;
+		hp--;
 		x = 1;
 	}
 	//If the dot collided or went too far up or down
@@ -357,7 +394,9 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
 		printf("Bomb");
 		x = 1;
+		Mix_PlayChannel(-1, sound_explode, 0);
 		printf("%d", x);
+
 	}
 	//Move the dot up or down
 	mPosY += mVelY;
@@ -379,10 +418,10 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	}
 	return x;
 }
-void Dot::render()
+void Dot::render(int bird)
 {
-	//Show the dot
-	gDotTexture.render(mPosX - mCollider.r, mPosY - mCollider.r);
+	SDL_Rect* bird01 = &bird1[bird / 4];
+	gDotTexture.render(mPosX - mCollider.r, mPosY - mCollider.r, bird01);
 }
 void Dot::render2()
 {
@@ -421,7 +460,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		gWindow = SDL_CreateWindow("Animal Fighter", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		if (gWindow == NULL)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
@@ -448,6 +487,13 @@ bool init()
 					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
 					success = false;
 				}
+				//Initialize SDL_mixer
+				if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+				{
+					printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+					success = false;
+				}
+
 			}
 		}
 	}
@@ -463,35 +509,47 @@ bool loadMedia()
 	bool success = true;
 
 	//Load dot texture
-	if (!mon.loadFromFile("animal/pig.png"))
+	if (!mon.loadFromFile("ani-two.png"))
 	{
 		printf("Failed to load walking animation texture!\n");
 		success = false;
 	}
+
+
+	if (!gtower.loadFromFile("tower.png"))
+	{
+		printf("Fail to loada tower.png");
+		success = false;
+	}
+
 	else
 	{
-		//Set sprite clips
 		gSpriteClips[0].x = 0;
 		gSpriteClips[0].y = 0;
-		gSpriteClips[0].w = 37;
-		gSpriteClips[0].h = 37;
+		gSpriteClips[0].w = 57;
+		gSpriteClips[0].h = 44;
 
-		gSpriteClips[1].x = 0;
-		gSpriteClips[1].y = 37;
-		gSpriteClips[1].w = 37;
-		gSpriteClips[1].h = 37;
+		gSpriteClips[1].x = 57;
+		gSpriteClips[1].y = 0;
+		gSpriteClips[1].w = 57;
+		gSpriteClips[1].h = 44;
 
 		gSpriteClips[2].x = 0;
-		gSpriteClips[2].y = 74;
-		gSpriteClips[2].w = 37;
-		gSpriteClips[2].h = 37;
+		gSpriteClips[2].y = 0;
+		gSpriteClips[2].w = 57;
+		gSpriteClips[2].h = 44;
 
-		gSpriteClips[3].x = 0;
-		gSpriteClips[3].y = 111;
-		gSpriteClips[3].w = 37;
-		gSpriteClips[3].h = 37;
+		gSpriteClips[3].x = 57;
+		gSpriteClips[3].y = 0;
+		gSpriteClips[3].w = 57;
+		gSpriteClips[3].h = 44;
+
+		gSpriteClips[4].x = 0;
+		gSpriteClips[4].y = 0;
+		gSpriteClips[4].w = 57;
+		gSpriteClips[4].h = 44;
 	}
-	if (!picbomb.loadFromFile("animal/bomb.png"))
+	if (!picbomb.loadFromFile("bomb.png"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
@@ -527,24 +585,152 @@ bool loadMedia()
 		pic01[6].h = 158;
 
 	}
-	if (!gDotTexture.loadFromFile("animal/dot.bmp"))
+	if (!gDotTexture.loadFromFile("ani-one.png"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
 	}
+	else {
+		bird1[0].x = 0;
+		bird1[0].y = 0;
+		bird1[0].w = 67;
+		bird1[0].h = 67;
+	
+		bird1[1].x = 65;
+		bird1[1].y = 0;
+		bird1[1].w = 65;
+		bird1[1].h = 67;
+		
+		bird1[2].x = 132;
+		bird1[2].y = 0;
+		bird1[2].w = 65;
+		bird1[2].h = 67;
+		
+		bird1[3].x = 65;
+		bird1[3].y = 0;
+		bird1[3].w = 65;
+		bird1[3].h = 67;
+	}
 	//Load dot texture
-	if (!Oreo.loadFromFile("animal/dot.bmp"))
+	if (!Oreo.loadFromFile("dot.bmp"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
 	}
 
 	//Load background texture
-	if (!gBGTexture.loadFromFile("backgrounds/bg3.png"))
+	if (!gBGTexture.loadFromFile("bg3.png"))
 	{
 		printf("Failed to load background texture!\n");
 		success = false;
 	}
+
+	if (!gamewin.loadFromFile("gamewin.png"))
+	{
+		printf("Failed to load background texture!\n");
+		success = false;
+
+	}
+
+	if (!gameover.loadFromFile("gameover.png"))
+	{
+		printf("Failed to load background texture!\n");
+		success = false;
+	}
+
+
+	//Load sound effects
+	musicstart = Mix_LoadMUS("musicstart.wav");
+	if (musicstart == NULL)
+	{
+		printf("Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+	sound_crush = Mix_LoadWAV("crush.wav");
+	if (sound_crush == NULL)
+	{
+		printf("Failed to load high sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+	musicgameplay = Mix_LoadMUS("musicgameplay.wav");
+	if (musicgameplay == NULL)
+	{
+		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+	music_victory = Mix_LoadMUS("victory_sound.wav");
+	if (music_victory == NULL)
+	{
+		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+
+	music_lose = Mix_LoadMUS("lose_sound.wav");
+	if (music_lose == NULL)
+	{
+		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+
+
+	
+	sound_explode = Mix_LoadWAV("explode.wav");
+	if (sound_explode == NULL)
+	{
+		printf("Failed to load low sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+		success = false;
+	}
+
+	if (!hpbar1.loadFromFile("hptap1.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar2.loadFromFile("hptap2.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar4.loadFromFile("hptap4.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar5.loadFromFile("hptap5.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!hpbar6.loadFromFile("hptap6.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+	if (!gboom.loadFromFile("boom.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+
+	if (!gmenubar1.loadFromFile("menu1.png"))
+	{
+		printf("Failed to load hp bar\n");
+		success = false;
+	}
+
+
+
 	return success;
 }
 
@@ -553,6 +739,25 @@ void close()
 {
 	//Free loaded images
 	gDotTexture.free();
+
+	//Free the sound effects
+	Mix_FreeChunk(sound_crush);
+
+	Mix_FreeChunk(sound_explode);
+
+	musicgameplay = NULL;
+	sound_crush = NULL;
+	musicstart = NULL;
+	sound_explode = NULL;
+
+	//Free the music
+	Mix_FreeMusic(musicstart);
+	musicstart = NULL;
+
+	//Free the music
+	Mix_FreeMusic(musicgameplay);
+	musicgameplay = NULL;
+
 
 	//Destroy window	
 	SDL_DestroyRenderer(gRenderer);
@@ -670,12 +875,14 @@ int main(int argc, char* args[])
 		{
 			//Main loop flag
 			bool quit = false;
+			int menubar = 0;
 
 			//Event handler
 			SDL_Event e;
 
 			//The background scrolling offset
 			int scrollingOffset = 0;
+			int scrollingmenu = 0;
 
 			//The dot that will be moving around on the screen
 			Dot dot(Dot::DOT_WIDTH / 2, Dot::DOT_HEIGHT / 2);
@@ -697,7 +904,499 @@ int main(int argc, char* args[])
 			a[count + 5].h6.x = 900;
 			a[count + 6].a4.x = 900;
 			a[count + 7].a4.x = 500;
-			while (!quit)
+
+			while (menubar < 1 && !quit)
+			{
+				//Handle events on queue
+				while (SDL_PollEvent(&e) != 0)
+				{
+					//User requests quit
+					if (e.type == SDL_QUIT)
+					{
+						quit = true;
+
+					}
+
+					if (e.key.keysym.sym == SDLK_RETURN) {
+						menubar++;
+						Mix_HaltMusic();
+
+					}
+
+				}
+				
+				if (menubar == 0)
+				{
+					if(Mix_PlayingMusic() == 0){
+					Mix_PlayMusic(musicstart, -1);
+					}
+				}
+
+				//Scroll background
+				--scrollingOffset;
+				if (scrollingOffset < -gBGTexture.getWidth())
+				{
+					scrollingOffset = 0;
+				}
+
+				printf("%d", menubar);
+			
+				
+				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_RenderClear(gRenderer);
+				//Render background
+				gBGTexture.render(scrollingOffset, 0);
+				gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
+
+				gmenubar1.render(0, 0);
+				//Update screen
+				SDL_RenderPresent(gRenderer);
+		}
+		
+			while (menubar == 1)
+				{
+					//Handle events on queue
+					while (SDL_PollEvent(&e) != 0)
+					{
+						//User requests quit
+						if (e.type == SDL_QUIT)
+						{
+							quit = true;
+						}
+
+						//Handle input for the dot
+						dot.handleEvent(e);
+					}
+
+
+					if (Mix_PlayingMusic() == 0) {
+						Mix_PlayMusic(musicgameplay, -1);
+					}
+
+					//Scroll background
+					--scrollingOffset;
+					if (scrollingOffset < -gBGTexture.getWidth())
+					{
+						scrollingOffset = 0;
+					}
+					SDL_RenderClear(gRenderer);
+					//Clear screen
+					SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+					SDL_RenderClear(gRenderer);
+					//Render background
+					gBGTexture.render(scrollingOffset, 0);
+					gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
+					//
+					//boss
+					a[0].boss.y -= bossmove;
+					if (a[0].boss.y <= 3)
+					{
+						bossmove = -1;
+					}
+					else if (a[0].boss.y == 80)
+					{
+						bossmove = 2;
+					}
+
+					//
+					a[count].a.x -= level;
+					a[count].a1.x -= level;
+					a[count].a2.x -= level;
+					a[count].a3.x -= level;
+					a[count].a4.x -= level;
+					a[count].h3.x -= level;
+					a[count].ha.x -= level;
+					a[count + 1].a4.x -= level;
+					a[count + 1].h6.x -= level;
+					a[count + 2].a4.x -= level;
+					a[count + 3].a4.x -= level;
+					a[count + 3].h6.x -= level;
+					a[count + 4].a4.x -= level;
+					a[count + 5].a4.x -= level;
+					a[count + 5].h6.x -= level;
+					a[count + 6].a4.x -= level;
+
+					//Move the dot and check collision
+					dot.move(a[count].boss, otherDot.getCollider());
+					dot.move(a[count].a, otherDot.getCollider());
+					dot.move(a[count].a1, otherDot.getCollider());
+					dot.move(a[count].a2, otherDot.getCollider());
+					dot.move(a[count].a3, otherDot.getCollider());
+					dot.move(a[count].a4, otherDot.getCollider());
+					dot.move(a[count].ha, otherDot.getCollider());
+					dot.move(a[count].h3, otherDot.getCollider());
+					dot.move(a[count + 1].a4, otherDot.getCollider());
+					dot.move(a[count + 1].h6, otherDot.getCollider());
+					dot.move(a[count + 2].a4, otherDot.getCollider());
+					dot.move(a[count + 3].a4, otherDot.getCollider());
+					dot.move(a[count + 3].h6, otherDot.getCollider());
+					dot.move(a[count + 4].a4, otherDot.getCollider());
+					dot.move(a[count + 5].a4, otherDot.getCollider());
+					dot.move(a[count + 5].h6, otherDot.getCollider());
+					dot.move(a[count + 6].a4, otherDot.getCollider());
+
+					//Level
+					if (count2 > 2 && count2 < 5) {
+						level = 4;
+					}
+					if (count2 > 5) {
+						level = 7;
+					}
+					//This is a Bomb
+					if (count2 % 4 == 0) {
+						time = 1;
+					}
+					if (count2 % 4 == 1) {
+						time1 = 1;
+					}
+					if (count2 % 4 == 3) {
+						time2 = 1;
+					}
+					//
+					//position
+					if (time >= 0) {
+
+						a[count + 6].a.x -= 0;
+						a[count + 6].a1.x -= 0;
+						dot.move2(a[count + 6].a, otherDot.getCollider());
+						if (dot.move2(a[count + 6].a, otherDot.getCollider()) == 1) { //cheak bird
+							a[count + 6].a.x = 5000;
+							a[count + 6].a.y = 5000;
+							damage++;
+							frame2[0] = 1;
+						}
+						dot.move2(a[count + 6].a1, otherDot.getCollider());
+						if (dot.move2(a[count + 6].a1, otherDot.getCollider()) == 1) { //cheak bird
+							a[count + 6].a1.x = 5000;
+							a[count + 6].a1.y = 5000;
+							damage++;
+							frame2[1] = 1;
+						}
+					}
+					if (time1 >= 0) {
+						a[count + 6].a2.x -= 0;
+						dot.move2(a[count + 6].a2, otherDot.getCollider());
+						if (dot.move2(a[count + 6].a2, otherDot.getCollider()) == 1) { //cheak bird
+							a[count + 6].a2.x = 5000;
+							a[count + 6].a2.y = 5000;
+							damage++;
+							frame2[2] = 1;
+						}
+					}
+					if (time2 >= 0) {
+						a[count + 6].a3.x -= 0;
+						a[count + 7].a4.x -= 0;
+						dot.move2(a[count + 6].a3, otherDot.getCollider());
+						if (dot.move2(a[count + 6].a3, otherDot.getCollider()) == 1) { //cheak bird
+							a[count + 6].a3.x = 5000;
+							a[count + 6].a3.y = 5000;
+							damage++;
+							frame2[3] = 1;
+						}
+						dot.move2(a[count + 7].a4, otherDot.getCollider());
+						if (dot.move2(a[count + 7].a4, otherDot.getCollider()) == 1) { //cheak bird
+							a[count + 7].a4.x = 5000;
+							a[count + 7].a4.y = 5000;
+							damage++;
+							frame2[4] = 1;
+						}
+					}
+
+					//render picture bomb
+					if (frame2[0] == 1) {
+						SDL_Rect* p = &pic01[i[0] / 6];
+						i[0]++;
+						picbomb.render(500, 50, p);
+						if (i[0] == 150) {
+							frame2[0] += 2;
+						}
+					}
+					if (frame2[1] == 1) {
+						SDL_Rect* p = &pic01[i[1] / 6];
+						i[1]++;
+						picbomb.render(530, 100, p);
+						if (i[1] == 150) {
+							frame2[1] += 2;
+						}
+					}
+					if (frame2[2] == 1) {
+						SDL_Rect* p = &pic01[i[2] / 6];
+						i[2]++;
+						picbomb.render(520, 80, p);
+						if (i[2] == 150) {
+							frame2[2] += 2;
+						}
+					}
+					if (frame2[3] == 1) {
+						SDL_Rect* p = &pic01[i[3] / 6];
+						i[3]++;
+						picbomb.render(510, 10, p);
+						if (i[3] == 150) {
+							frame2[3] += 2;
+						}
+					}
+					if (frame2[4] == 1) {
+						SDL_Rect* p = &pic01[i[4] / 6];
+						i[4]++;
+						picbomb.render(520, 50, p);
+						if (i[4] == 150) {
+							frame2[4] += 2;
+						}
+					}
+					//
+					//
+					//kill boss
+					if (damage == 4) {
+						a[0].boss.x = 5000;
+						Mix_HaltMusic();
+						SDL_Delay(3000);
+						menubar++;
+						
+					}
+					//
+
+					if (a[count].a.x < -30) {
+						count2++;
+						time = -1;
+						time1 = -1;
+						time2 = -1;
+						a[count].a.x = 1400;
+					}
+					if (a[count].a1.x < -30) {
+						a[count].a1.x = 680;
+					}
+					if (a[count].a2.x < -30) {
+						a[count].a2.x = 680;
+					}
+					if (a[count].a3.x < -30) {
+						a[count].a3.x = 680;
+					}
+					if (a[count].a4.x < -30) {
+						a[count].a4.x = 680;
+					}
+					if (a[count].ha.x < -30) {
+						a[count].ha.x = 680;
+					}
+					if (a[count].h3.x < -30) {
+						a[count].h3.x = 680;
+					}
+					if (a[count + 1].a4.x < -30) {
+						a[count + 1].a4.x = 1200;
+					}
+					if (a[count + 1].h6.x < -30) {
+						a[count + 1].h6.x = 1400;
+					}
+					if (a[count + 2].a4.x < -30) {
+						a[count + 2].a4.x = 2000;
+					}
+					if (a[count + 3].a4.x < -30) {
+						a[count + 3].a4.x = 3000;
+					}
+					if (a[count + 3].h6.x < -30) {
+						a[count + 3].h6.x = 3000;
+					}
+					if (a[count + 4].a4.x < -30) {
+						a[count + 4].a4.x = 3000;
+					}
+					if (a[count + 5].a4.x < -30) {
+						a[count + 5].a4.x = 3800;
+					}
+					if (a[count + 5].h6.x < -30) {
+						a[count + 5].h6.x = 3800;
+					}
+					if (a[count + 6].a4.x < -30) {
+						a[count + 6].a4.x = 3800;
+					}
+					if (count2 > 3) {
+						a[count].h5.x -= count4;
+						a[count].h6.x -= count4;
+						a[count].h7.x -= count4;
+						dot.move(a[count].h5, otherDot.getCollider());
+						dot.move(a[count].h6, otherDot.getCollider());
+						dot.move(a[count].h7, otherDot.getCollider());
+						if (a[count].a.x < -30) {
+							count2++;
+							a[count].h5.x = 2100;
+						}
+						if (a[count].h6.x < -30) {
+							a[count].h6.x = 1300;
+						}
+						if (a[count].h7.x < -30) {
+							a[count].h7.x = 1300;
+						}
+					}
+
+
+
+
+
+					//Render wall
+					//boss
+					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
+					SDL_RenderDrawRect(gRenderer, &a[0].boss);
+					//
+					//Render current frame
+					SDL_Rect* currentClip = &gSpriteClips[frame / 4];
+
+
+
+					mon.render(a[count].a.x, a[count].a.y, currentClip);
+					mon.render(a[count].a1.x, a[count].a1.y, currentClip);
+					mon.render(a[count].a2.x, a[count].a2.y, currentClip);
+					mon.render(a[count].a3.x, a[count].a3.y, currentClip);
+					mon.render(a[count].a4.x, a[count].a4.y, currentClip);
+					mon.render(a[count].ha.x, a[count].ha.y, currentClip);
+					mon.render(a[count].h3.x, a[count].h3.y, currentClip);
+					mon.render(a[count + 1].a4.x, a[count + 1].a4.y, currentClip);
+					mon.render(a[count + 1].h6.x, a[count + 1].h6.y, currentClip);
+					mon.render(a[count + 2].a4.x, a[count + 2].a4.y, currentClip);
+					mon.render(a[count + 3].h6.x, a[count + 3].h6.y, currentClip);
+					mon.render(a[count + 3].a4.x, a[count + 3].a4.y, currentClip);
+					mon.render(a[count + 4].a4.x, a[count + 4].a4.y, currentClip);
+					mon.render(a[count + 5].h6.x, a[count + 5].h6.y, currentClip);
+					mon.render(a[count + 5].a4.x, a[count + 5].a4.y, currentClip);
+					mon.render(a[count + 6].a4.x, a[count + 6].a4.y, currentClip);
+					if (count2 > 3) {
+						mon.render(a[count].h5.x, a[count].h5.y, currentClip);
+						mon.render(a[count].h6.x, a[count].h6.y, currentClip);
+						mon.render(a[count].h7.x, a[count].h7.y, currentClip);
+
+					}
+
+
+
+					if (time >= 0) {
+						SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
+						SDL_RenderDrawRect(gRenderer, &a[count + 6].a);
+						SDL_RenderDrawRect(gRenderer, &a[count + 6].a1);
+
+						gboom.render(a[count + 25].a.x - 12, a[count + 6].a.y - 30);
+						gboom.render(a[count + 25].a1.x - 12, a[count + 6].a1.y - 30);
+
+
+					}
+					if (time1 >= 0) {
+						SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
+						SDL_RenderDrawRect(gRenderer, &a[count + 6].a2);
+
+
+						gboom.render(a[count + 6].a2.x - 12, a[count + 6].a2.y - 30);
+
+					}
+					if (time2 >= 0) {
+						SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 1);
+						SDL_RenderDrawRect(gRenderer, &a[count + 6].a3);
+						SDL_RenderDrawRect(gRenderer, &a[count + 7].a4);
+
+
+						gboom.render(a[count + 6].a3.x - 12, a[count + 6].a3.y - 30);
+
+						gboom.render(a[count + 7].a4.x - 12, a[count + 7].a4.y - 30);
+					}
+					//Go to next frame
+					++frame;
+					//Cycle animation
+					if (frame / 4 >= WALKING_ANIMATION_FRAMES)
+					{
+						frame = 0;
+					}
+
+
+					if (damage == 0) {
+						hpbar1.render(560, 500);
+					}
+					else if (damage == 1) {
+						hpbar2.render(560, 500);
+					}
+					else if (damage == 2) {
+						hpbar4.render(560, 500);
+					}
+					else if (damage == 3) {
+						hpbar5.render(560, 500);
+
+					}
+					else if (damage == 4) {
+						hpbar6.render(560, 500);
+					}
+
+
+					if (hp >= 50) {
+						hpbar1.render(0, 500);
+					}
+					else if (hp >= 30) {
+						hpbar2.render(0, 500);
+					}
+					else if (hp >= 20) {
+						hpbar4.render(0, 500);
+					}
+					else if (hp >= 10) {
+						hpbar5.render(0, 500);
+
+					}
+					else if (hp >= 5 ) {
+						hpbar6.render(0, 500);
+
+					}else if (hp >= 0) {
+						hpbar6.render(0, 500);
+						Mix_HaltMusic();
+						menubar = 3;
+					}
+
+					printf("%d", hp);
+					gtower.render(a[0].boss.x - 80, a[0].boss.y);
+					//Render dots
+					dot.render(frame);
+					//Update screen
+					SDL_RenderPresent(gRenderer);
+				}
+
+
+			// game victory screen;
+			while (menubar == 2 && !quit)
+				{
+					//Handle events on queue
+					while (SDL_PollEvent(&e) != 0)
+					{
+						//User requests quit
+						if (e.type == SDL_QUIT)
+						{
+							quit = true;
+						}
+
+						if (e.key.keysym.sym == SDLK_RETURN) {
+							menubar++;
+						}
+
+					}
+
+
+					if (Mix_PlayingMusic() == 0) {
+						Mix_PlayMusic(music_victory, -1);
+					}
+
+					//Scroll background
+					--scrollingOffset;
+					if (scrollingOffset < -gBGTexture.getWidth())
+					{
+						scrollingOffset = 0;
+					}
+
+					printf("%d", menubar);
+
+
+					SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+					SDL_RenderClear(gRenderer);
+					//Render background
+					gBGTexture.render(scrollingOffset, 0);
+					gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
+
+					gamewin.render(0, 0);
+					//Update screen
+					SDL_RenderPresent(gRenderer);
+				}
+
+			// game over screene;
+			while (menubar == 3 && !quit)
 			{
 				//Handle events on queue
 				while (SDL_PollEvent(&e) != 0)
@@ -708,321 +1407,39 @@ int main(int argc, char* args[])
 						quit = true;
 					}
 
-					//Handle input for the dot
-					dot.handleEvent(e);
+					if (e.key.keysym.sym == SDLK_RETURN) {
+						menubar++;
+					}
+
 				}
+
+				if (Mix_PlayingMusic() == 0) {
+					Mix_PlayMusic(music_lose, -1);
+				}
+
 				//Scroll background
 				--scrollingOffset;
 				if (scrollingOffset < -gBGTexture.getWidth())
 				{
 					scrollingOffset = 0;
 				}
-				SDL_RenderClear(gRenderer);
-				//Clear screen
+
+				printf("%d", menubar);
+
+
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 				SDL_RenderClear(gRenderer);
 				//Render background
 				gBGTexture.render(scrollingOffset, 0);
 				gBGTexture.render(scrollingOffset + gBGTexture.getWidth(), 0);
-				//
-				//boss
-				a[0].boss.y -= bossmove;
-				if (a[0].boss.y <= 3)
-				{
-					bossmove = -2;
-				}
-				else if (a[0].boss.y == 80)
-				{
-					bossmove = 2;
-				}
-				//
-				a[count].a.x -= level;
-				a[count].a1.x -= level;
-				a[count].a2.x -= level;
-				a[count].a3.x -= level;
-				a[count].a4.x -= level;
-				a[count].h3.x -= level;
-				a[count].ha.x -= level;
-				a[count + 1].a4.x -= level;
-				a[count + 1].h6.x -= level;
-				a[count + 2].a4.x -= level;
-				a[count + 3].a4.x -= level;
-				a[count + 3].h6.x -= level;
-				a[count + 4].a4.x -= level;
-				a[count + 5].a4.x -= level;
-				a[count + 5].h6.x -= level;
-				a[count + 6].a4.x -= level;
 
-				//Move the dot and check collision
-				dot.move(a[count].boss, otherDot.getCollider());
-				dot.move(a[count].a, otherDot.getCollider());
-				dot.move(a[count].a1, otherDot.getCollider());
-				dot.move(a[count].a2, otherDot.getCollider());
-				dot.move(a[count].a3, otherDot.getCollider());
-				dot.move(a[count].a4, otherDot.getCollider());
-				dot.move(a[count].ha, otherDot.getCollider());
-				dot.move(a[count].h3, otherDot.getCollider());
-				dot.move(a[count + 1].a4, otherDot.getCollider());
-				dot.move(a[count + 1].h6, otherDot.getCollider());
-				dot.move(a[count + 2].a4, otherDot.getCollider());
-				dot.move(a[count + 3].a4, otherDot.getCollider());
-				dot.move(a[count + 3].h6, otherDot.getCollider());
-				dot.move(a[count + 4].a4, otherDot.getCollider());
-				dot.move(a[count + 5].a4, otherDot.getCollider());
-				dot.move(a[count + 5].h6, otherDot.getCollider());
-				dot.move(a[count + 6].a4, otherDot.getCollider());
-
-				//Level
-				if (count2 >2 && count2 < 5) {
-					level = 4;
-				}
-				if (count2 > 5) {
-					level = 7;
-				}
-				//This is a Bomb
-				if (count2 % 4 == 0) {
-					time = 1;
-				}
-				if (count2 % 4 == 1) {
-					time1 = 1;
-				}
-				if (count2 % 4 == 3) {
-					time2 = 1;
-				}
-				//
-				//position
-				if (time >= 0) {
-
-					a[count + 6].a.x -= 0;
-					a[count + 6].a1.x -= 0;
-					dot.move2(a[count + 6].a, otherDot.getCollider());
-					if (dot.move2(a[count + 6].a, otherDot.getCollider()) == 1) { //cheak bird
-						a[count + 6].a.x = 5000;
-						a[count + 6].a.y = 5000;
-						damage++;
-						frame2[0] = 1;
-					}
-					dot.move2(a[count + 6].a1, otherDot.getCollider());
-					if (dot.move2(a[count + 6].a1, otherDot.getCollider()) == 1) { //cheak bird
-						a[count + 6].a1.x = 5000;
-						a[count + 6].a1.y = 5000;
-						damage++;
-						frame2[1] = 1;
-					}
-				}
-				if (time1 >= 0) {
-					a[count + 6].a2.x -= 0;
-					dot.move2(a[count + 6].a2, otherDot.getCollider());
-					if (dot.move2(a[count + 6].a2, otherDot.getCollider()) == 1) { //cheak bird
-						a[count + 6].a2.x = 5000;
-						a[count + 6].a2.y = 5000;
-						damage++;
-						frame2[2] = 1;
-					}
-				}
-				if (time2 >= 0) {
-					a[count + 6].a3.x -= 0;
-					a[count + 7].a4.x -= 0;
-					dot.move2(a[count + 6].a3, otherDot.getCollider());
-					if (dot.move2(a[count + 6].a3, otherDot.getCollider()) == 1) { //cheak bird
-						a[count + 6].a3.x = 5000;
-						a[count + 6].a3.y = 5000;
-						damage++;
-						frame2[3] = 1;
-					}
-					dot.move2(a[count + 7].a4, otherDot.getCollider());
-					if (dot.move2(a[count + 7].a4, otherDot.getCollider()) == 1) { //cheak bird
-						a[count + 7].a4.x = 5000;
-						a[count + 7].a4.y = 5000;
-						damage++;
-						frame2[4] = 1;
-					}
-				}
-
-				//render picture bomb
-				if (frame2[0] == 1) {
-					SDL_Rect* p = &pic01[i[0] / 6];
-					i[0]++;
-					picbomb.render(500, 50, p);
-					if (i[0] == 150) {
-						frame2[0] += 2;
-					}
-				}
-				if (frame2[1] == 1) {
-					SDL_Rect* p = &pic01[i[1] / 6];
-					i[1]++;
-					picbomb.render(530, 100, p);
-					if (i[1] == 150) {
-						frame2[1] += 2;
-					}
-				}
-				if (frame2[2] == 1) {
-					SDL_Rect* p = &pic01[i[2] / 6];
-					i[2]++;
-					picbomb.render(520, 80, p);
-					if (i[2] == 150) {
-						frame2[2] += 2;
-					}
-				}
-				if (frame2[3] == 1) {
-					SDL_Rect* p = &pic01[i[3] / 6];
-					i[3]++;
-					picbomb.render(510, 10, p);
-					if (i[3] == 150) {
-						frame2[3] += 2;
-					}
-				}
-				if (frame2[4] == 1) {
-					SDL_Rect* p = &pic01[i[4] / 6];
-					i[4]++;
-					picbomb.render(520, 50, p);
-					if (i[4] == 150) {
-						frame2[4] += 2;
-					}
-				}
-				//
-				//
-				//kill boss
-				if (damage == 4) {
-					a[0].boss.x = 5000;
-				}
-				//
-
-				if (a[count].a.x < -30) {
-					count2++;
-					time = -1;
-					time1 = -1;
-					time2 = -1;
-					a[count].a.x = 1400;
-				}
-				if (a[count].a1.x < -30) {
-					a[count].a1.x = 680;
-				}
-				if (a[count].a2.x < -30) {
-					a[count].a2.x = 680;
-				}
-				if (a[count].a3.x < -30) {
-					a[count].a3.x = 680;
-				}
-				if (a[count].a4.x < -30) {
-					a[count].a4.x = 680;
-				}
-				if (a[count].ha.x < -30) {
-					a[count].ha.x = 680;
-				}
-				if (a[count].h3.x < -30) {
-					a[count].h3.x = 680;
-				}
-				if (a[count + 1].a4.x < -30) {
-					a[count + 1].a4.x = 1200;
-				}
-				if (a[count + 1].h6.x < -30) {
-					a[count + 1].h6.x = 1400;
-				}
-				if (a[count + 2].a4.x < -30) {
-					a[count + 2].a4.x = 2000;
-				}
-				if (a[count + 3].a4.x < -30) {
-					a[count + 3].a4.x = 3000;
-				}
-				if (a[count + 3].h6.x < -30) {
-					a[count + 3].h6.x = 3000;
-				}
-				if (a[count + 4].a4.x < -30) {
-					a[count + 4].a4.x = 3000;
-				}
-				if (a[count + 5].a4.x < -30) {
-					a[count + 5].a4.x = 3800;
-				}
-				if (a[count + 5].h6.x < -30) {
-					a[count + 5].h6.x = 3800;
-				}
-				if (a[count + 6].a4.x < -30) {
-					a[count + 6].a4.x = 3800;
-				}
-				if (count2 > 3) {
-					a[count].h5.x -= count4;
-					a[count].h6.x -= count4;
-					a[count].h7.x -= count4;
-					dot.move(a[count].h5, otherDot.getCollider());
-					dot.move(a[count].h6, otherDot.getCollider());
-					dot.move(a[count].h7, otherDot.getCollider());
-					if (a[count].a.x < -30) {
-						count2++;
-						a[count].h5.x = 2100;
-					}
-					if (a[count].h6.x < -30) {
-						a[count].h6.x = 1300;
-					}
-					if (a[count].h7.x < -30) {
-						a[count].h7.x = 1300;
-					}
-				}
-
-
-
-
-
-				//Render wall
-				//boss
-				SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
-				SDL_RenderDrawRect(gRenderer, &a[0].boss);
-				//
-				//Render current frame
-				SDL_Rect* currentClip = &gSpriteClips[frame / 4];
-				mon.render(a[count].a.x, a[count].a.y, currentClip);
-				mon.render(a[count].a1.x, a[count].a1.y, currentClip);
-				mon.render(a[count].a2.x, a[count].a2.y, currentClip);
-				mon.render(a[count].a3.x, a[count].a3.y, currentClip);
-				mon.render(a[count].a4.x, a[count].a4.y, currentClip);
-				mon.render(a[count].ha.x, a[count].ha.y, currentClip);
-				mon.render(a[count].h3.x, a[count].h3.y, currentClip);
-				mon.render(a[count + 1].a4.x, a[count + 1].a4.y, currentClip);
-				mon.render(a[count + 1].h6.x, a[count + 1].h6.y, currentClip);
-				mon.render(a[count + 2].a4.x, a[count + 2].a4.y, currentClip);
-				mon.render(a[count + 3].h6.x, a[count + 3].h6.y, currentClip);
-				mon.render(a[count + 3].a4.x, a[count + 3].a4.y, currentClip);
-				mon.render(a[count + 4].a4.x, a[count + 4].a4.y, currentClip);
-				mon.render(a[count + 5].h6.x, a[count + 5].h6.y, currentClip);
-				mon.render(a[count + 5].a4.x, a[count + 5].a4.y, currentClip);
-				mon.render(a[count + 6].a4.x, a[count + 6].a4.y, currentClip);
-				if (count2 > 3) {
-					mon.render(a[count].h5.x, a[count].h5.y, currentClip);
-					mon.render(a[count].h6.x, a[count].h6.y, currentClip);
-					mon.render(a[count].h7.x, a[count].h7.y, currentClip);
-				}
-				if (time >= 0) {
-					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
-					SDL_RenderDrawRect(gRenderer, &a[count + 6].a);
-					SDL_RenderDrawRect(gRenderer, &a[count + 6].a1);
-				}
-				if (time1 >= 0) {
-					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
-					SDL_RenderDrawRect(gRenderer, &a[count + 6].a2);
-				}
-				if (time2 >= 0) {
-					SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
-					SDL_RenderDrawRect(gRenderer, &a[count + 6].a3);
-					SDL_RenderDrawRect(gRenderer, &a[count + 7].a4);
-				}
-				//Go to next frame
-				++frame;
-				//Cycle animation
-				if (frame / 4 >= WALKING_ANIMATION_FRAMES)
-				{
-					frame = 0;
-				}
-				//Render dots
-				dot.render();
-				otherDot.render();
+				gameover.render(0, 0);
 				//Update screen
 				SDL_RenderPresent(gRenderer);
-			}
+			}	
 		}
 	}
-
 	//Free resources and close SDL
 	close();
-
 	return 0;
 }
