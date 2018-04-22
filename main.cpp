@@ -136,7 +136,7 @@ Mix_Chunk *sound_crush = NULL;
 Mix_Chunk *sound_explode = NULL;
 
 
-int hp = 100;
+int hp = 50;
 
 
 LTexture hpbar1, hpbar2, hpbar3, hpbar4, hpbar5, hpbar6;
@@ -1295,22 +1295,27 @@ int main(int argc, char* args[])
 					}
 
 
-					if (hp >= 90) {
+					if (hp >= 50) {
 						hpbar1.render(0, 500);
 					}
-					else if (hp >= 70) {
+					else if (hp >= 30) {
 						hpbar2.render(0, 500);
 					}
-					else if (hp >= 30) {
+					else if (hp >= 20) {
 						hpbar4.render(0, 500);
 					}
-					else if (hp >= 20) {
+					else if (hp >= 10) {
 						hpbar5.render(0, 500);
 
 					}
-					else if (hp < 20) {
+					else if (hp < 5 ) {
 						hpbar6.render(0, 500);
 
+					}
+					
+					if (hp == 0) {
+						Mix_HaltMusic();
+						menubar = 3;
 					}
 
 					gtower.render(a[0].boss.x - 80, a[0].boss.y);
@@ -1321,6 +1326,7 @@ int main(int argc, char* args[])
 				}
 
 
+			// game victory screen;
 			while (menubar == 2 && !quit)
 				{
 					//Handle events on queue
@@ -1340,7 +1346,7 @@ int main(int argc, char* args[])
 
 
 					if (Mix_PlayingMusic() == 0) {
-						Mix_PlayMusic(music_lose, -1);
+						Mix_PlayMusic(music_victory, -1);
 					}
 
 					//Scroll background
@@ -1364,7 +1370,7 @@ int main(int argc, char* args[])
 					SDL_RenderPresent(gRenderer);
 				}
 
-
+			// game over screene;
 			while (menubar == 3 && !quit)
 			{
 				//Handle events on queue
@@ -1382,6 +1388,9 @@ int main(int argc, char* args[])
 
 				}
 
+				if (Mix_PlayingMusic() == 0) {
+					Mix_PlayMusic(music_lose, -1);
+				}
 
 				//Scroll background
 				--scrollingOffset;
