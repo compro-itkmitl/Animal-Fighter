@@ -23,13 +23,10 @@
 
 # Screen Shot 
 
-![](/graphics/1.png)
-
-![](/graphics/2.png)
-
-![](/graphics/3.png)
-
-![](/graphics/4.png)
+<p align="center"> <img src="graphics/1.png" width="400"/></p>
+<p align="center"> <img src="graphics/2.png" width="400"/></p>
+<p align="center"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/3.PNG?raw=true" width="400"></p>
+<p align="center"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/4.PNG?raw=true" width="400"></p>
 
 
 
