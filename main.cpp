@@ -145,24 +145,25 @@ Mix_Chunk *sound_explode = NULL;
 // health of hero
 int hp = 50;
 
+// frame fo pic
+const int picbird = 4;
+SDL_Rect bird1[picbird]; // bird
+
 // health bar
 LTexture hpbar1, hpbar2, hpbar3, hpbar4, hpbar5, hpbar6;
 
 //Scene textures
 LTexture gDotTexture;
-const int picbird = 4;
-SDL_Rect bird1[picbird];
 LTexture gBGTexture;
 LTexture Oreo;
 LTexture mon;
 LTexture picbomb;
 LTexture gboom;
 LTexture gtower;
-
 LTexture gameover;
 LTexture gamewin;
-
 LTexture gmenubar1, gmenubar2, gmenubar3;
+
 LTexture::LTexture()
 {
 	//Initialize
@@ -346,7 +347,10 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 	mPosY += mVelY;
 	shiftColliders();
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
+		
+		// play sound when crush a monster;
 		Mix_PlayChannel(-1, sound_crush, 0);
+		
 		printf("mon");
 		mPosX -= mVelX + 10;
 		hp--;
@@ -363,9 +367,6 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 		if (mPosY <= 0) {
 			mPosY = 15;
 		}
-		/*if (y >= 3) {
-		printf("gameover");
-		}*/
 		shiftColliders();
 	}
 	return x;
@@ -394,6 +395,7 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
 		printf("Bomb");
 		x = 1;
+		// play boom! sound;
 		Mix_PlayChannel(-1, sound_explode, 0);
 		printf("%d", x);
 
@@ -411,9 +413,6 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 		if (mPosY <= 0) {
 			mPosY = 15;
 		}
-		/*if (y >= 3) {
-		printf("gameover");
-		}*/
 		shiftColliders();
 	}
 	return x;
@@ -509,14 +508,13 @@ bool loadMedia()
 	bool success = true;
 
 	//Load dot texture
-	if (!mon.loadFromFile("ani-two.png"))
+	if (!mon.loadFromFile("graphics/ani-two.png"))
 	{
 		printf("Failed to load walking animation texture!\n");
 		success = false;
 	}
 
-
-	if (!gtower.loadFromFile("tower.png"))
+	if (!gtower.loadFromFile("graphics/tower.png"))
 	{
 		printf("Fail to loada tower.png");
 		success = false;
@@ -549,7 +547,7 @@ bool loadMedia()
 		gSpriteClips[4].w = 57;
 		gSpriteClips[4].h = 44;
 	}
-	if (!picbomb.loadFromFile("bomb.png"))
+	if (!picbomb.loadFromFile("graphics/bomb.png"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
@@ -585,7 +583,7 @@ bool loadMedia()
 		pic01[6].h = 158;
 
 	}
-	if (!gDotTexture.loadFromFile("ani-one.png"))
+	if (!gDotTexture.loadFromFile("graphics/ani-one.png"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
@@ -612,27 +610,27 @@ bool loadMedia()
 		bird1[3].h = 67;
 	}
 	//Load dot texture
-	if (!Oreo.loadFromFile("dot.bmp"))
+	if (!Oreo.loadFromFile("graphics/dot.bmp"))
 	{
 		printf("Failed to load dot texture!\n");
 		success = false;
 	}
 
 	//Load background texture
-	if (!gBGTexture.loadFromFile("bg3.png"))
+	if (!gBGTexture.loadFromFile("graphics/bg3.png"))
 	{
 		printf("Failed to load background texture!\n");
 		success = false;
 	}
 
-	if (!gamewin.loadFromFile("gamewin.png"))
+	if (!gamewin.loadFromFile("graphics/gamewin.png"))
 	{
 		printf("Failed to load background texture!\n");
 		success = false;
 
 	}
 
-	if (!gameover.loadFromFile("gameover.png"))
+	if (!gameover.loadFromFile("graphics/gameover.png"))
 	{
 		printf("Failed to load background texture!\n");
 		success = false;
@@ -640,28 +638,28 @@ bool loadMedia()
 
 
 	//Load sound effects
-	musicstart = Mix_LoadMUS("musicstart.wav");
+	musicstart = Mix_LoadMUS("sound/musicstart.wav");
 	if (musicstart == NULL)
 	{
 		printf("Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
 	}
 
-	sound_crush = Mix_LoadWAV("crush.wav");
+	sound_crush = Mix_LoadWAV("sound/crush.wav");
 	if (sound_crush == NULL)
 	{
 		printf("Failed to load high sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
 	}
 
-	musicgameplay = Mix_LoadMUS("musicgameplay.wav");
+	musicgameplay = Mix_LoadMUS("sound/musicgameplay.wav");
 	if (musicgameplay == NULL)
 	{
 		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
 	}
 
-	music_victory = Mix_LoadMUS("victory_sound.wav");
+	music_victory = Mix_LoadMUS("sound/victory_sound.wav");
 	if (music_victory == NULL)
 	{
 		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
@@ -669,68 +667,61 @@ bool loadMedia()
 	}
 
 
-	music_lose = Mix_LoadMUS("lose_sound.wav");
+	music_lose = Mix_LoadMUS("sound/lose_sound.wav");
 	if (music_lose == NULL)
 	{
 		printf("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
 	}
 
-
-
-	
-	sound_explode = Mix_LoadWAV("explode.wav");
+	sound_explode = Mix_LoadWAV("sound/explode.wav");
 	if (sound_explode == NULL)
 	{
 		printf("Failed to load low sound effect! SDL_mixer Error: %s\n", Mix_GetError());
 		success = false;
 	}
 
-	if (!hpbar1.loadFromFile("hptap1.png"))
+	if (!hpbar1.loadFromFile("graphics/hptap1.png"))
 	{
 		printf("Failed to load hp bar\n");
 		success = false;
 	}
 
-	if (!hpbar2.loadFromFile("hptap2.png"))
+	if (!hpbar2.loadFromFile("graphics/hptap2.png"))
 	{
 		printf("Failed to load hp bar\n");
 		success = false;
 	}
 
-	if (!hpbar4.loadFromFile("hptap4.png"))
+	if (!hpbar4.loadFromFile("graphics/hptap4.png"))
 	{
 		printf("Failed to load hp bar\n");
 		success = false;
 	}
 
-	if (!hpbar5.loadFromFile("hptap5.png"))
+	if (!hpbar5.loadFromFile("graphics/hptap5.png"))
 	{
 		printf("Failed to load hp bar\n");
 		success = false;
 	}
 
-	if (!hpbar6.loadFromFile("hptap6.png"))
+	if (!hpbar6.loadFromFile("graphics/hptap6.png"))
 	{
 		printf("Failed to load hp bar\n");
 		success = false;
 	}
 
-	if (!gboom.loadFromFile("boom.png"))
+	if (!gboom.loadFromFile("graphics/boom.png"))
 	{
 		printf("Failed to load hp bar\n");
 		success = false;
 	}
 
-
-	if (!gmenubar1.loadFromFile("menu1.png"))
+	if (!gmenubar1.loadFromFile("graphics/menu1.png"))
 	{
 		printf("Failed to load hp bar\n");
 		success = false;
 	}
-
-
-
 	return success;
 }
 
@@ -860,6 +851,7 @@ int main(int argc, char* args[])
 		SDL_Rect bomb3{ 590,50,50,400 };
 		SDL_Rect bomb4{ 590,50,50,400 };
 	}a[99];
+	
 	if (!init())
 	{
 		printf("Failed to initialize!\n");
