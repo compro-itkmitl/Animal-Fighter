@@ -22,3 +22,13 @@
 4. เก็บระเบิดเพื่อทำลายป้อมศัตรู
 
 
+# ![](/Resource/Supervisor.png) Assistant Teacher
+|ผศ. ดร. กิติ์สุชาติ พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
+|:-:|:-:|
+|![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Oong.png)|![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Panwit.png)|
+
+รายงานนี้เป็นส่วนหนึ่งของวิชา Computer Programming (รหัส 06016206)
+
+คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
+
+---
