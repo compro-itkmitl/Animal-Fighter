@@ -68,8 +68,8 @@ class Dot
 public:
 	
 	//The dimensions of the dot
-	static const int DOT_WIDTH = 20;
-	static const int DOT_HEIGHT = 20;
+	static const int DOT_WIDTH = 30;
+	static const int DOT_HEIGHT = 30;
 	static const int count999 = 20;
 
 	//speed of the dot
@@ -327,7 +327,7 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 	shiftColliders();
 
 	//If the dot collided or went too far to the left or right
-	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
+	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH-30))
 	{
 		//Move back
 		mPosX -= mVelX + 3;
@@ -355,7 +355,7 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 		x = 1;
 	}
 	//If the dot collided or went too far up or down
-	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
+	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT-50))
 	{
 		//Move back
 		mPosY -= mVelY;
@@ -375,7 +375,7 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	mPosX += mVelX;
 	shiftColliders();
 	//If the dot collided or went too far to the left or right
-	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
+	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH-30))
 	{
 		//Move back
 		mPosX -= mVelX + 3;
@@ -399,7 +399,7 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	mPosY += mVelY;
 	shiftColliders();
 	//If the dot collided or went too far up or down
-	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
+	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT-50))
 	{
 		//Move back
 		mPosY -= mVelY;
