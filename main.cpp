@@ -329,7 +329,6 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 	//If the dot collided or went too far to the left or right
 	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
 	{
-		printf("wall");
 		//Move back
 		mPosX -= mVelX + 3;
 		x++;
@@ -351,7 +350,6 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 		// play sound when crush a monster;
 		Mix_PlayChannel(-1, sound_crush, 0);
 		
-		printf("mon");
 		mPosX -= mVelX + 10;
 		hp--;
 		x = 1;
@@ -359,7 +357,6 @@ int Dot::move(SDL_Rect& square, Circle& circle)
 	//If the dot collided or went too far up or down
 	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
 	{
-		printf("wall");
 		//Move back
 		mPosY -= mVelY;
 		x++;
@@ -380,7 +377,6 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	//If the dot collided or went too far to the left or right
 	if ((mPosX - mCollider.r < 0) || (mPosX + mCollider.r > SCREEN_WIDTH))
 	{
-		printf("wall");
 		//Move back
 		mPosX -= mVelX + 3;
 		y++;
@@ -393,12 +389,11 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 		shiftColliders();
 	}
 	if (checkCollision(mCollider, square) || checkCollision(mCollider, circle)) {
-		printf("Bomb");
+
 		x = 1;
 		// play boom! sound;
 		Mix_PlayChannel(-1, sound_explode, 0);
-		printf("%d", x);
-
+		
 	}
 	//Move the dot up or down
 	mPosY += mVelY;
@@ -406,7 +401,6 @@ int Dot::move2(SDL_Rect& square, Circle& circle)
 	//If the dot collided or went too far up or down
 	if ((mPosY - mCollider.r < 0) || (mPosY + mCollider.r > SCREEN_HEIGHT))
 	{
-		printf("wall");
 		//Move back
 		mPosY -= mVelY;
 		y++;
@@ -931,9 +925,6 @@ int main(int argc, char* args[])
 					scrollingOffset = 0;
 				}
 
-				printf("%d", menubar);
-			
-				
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 				SDL_RenderClear(gRenderer);
 				//Render background
@@ -945,7 +936,7 @@ int main(int argc, char* args[])
 				SDL_RenderPresent(gRenderer);
 		}
 		
-			while (menubar == 1)
+			while (menubar == 1 && !quit)
 				{
 					//Handle events on queue
 					while (SDL_PollEvent(&e) != 0)
@@ -1345,9 +1336,7 @@ int main(int argc, char* args[])
 							quit = true;
 						}
 
-						if (e.key.keysym.sym == SDLK_RETURN) {
-							menubar++;
-						}
+						
 
 					}
 
@@ -1362,9 +1351,6 @@ int main(int argc, char* args[])
 					{
 						scrollingOffset = 0;
 					}
-
-					printf("%d", menubar);
-
 
 					SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 					SDL_RenderClear(gRenderer);
@@ -1405,9 +1391,6 @@ int main(int argc, char* args[])
 				{
 					scrollingOffset = 0;
 				}
-
-				printf("%d", menubar);
-
 
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 				SDL_RenderClear(gRenderer);
