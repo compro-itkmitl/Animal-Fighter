@@ -18,7 +18,7 @@
 
 1. โหลด zip file จาก Github 
 2. ทำการแตกไฟล์
-3. เข้าไปที่ Systemfile > Animal-Fighter.exe เพื่อเริ่มเกม
+3. เข้าไปที่ system file > Animal-Fighter.exe เพื่อเริ่มเกม
 
 
 # How to play
