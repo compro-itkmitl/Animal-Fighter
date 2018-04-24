@@ -1,16 +1,16 @@
 <p align="center"> <img src="graphics/forgit1.png" width="500"/></p>
 
 # Introduction
- สวัสดีครับ สำหรับกลุ่ม Animal-Fighter พวกเราได้สร้างเกม 2D โดยลักษณะของตัวเกมเบื้องต้น คือเราจะต้องหลบหลีกสัตว์ร้าย และ เก็บระเบิด เพื่อที่จะไปทำร้ายป้อมของศัตรู
- โดยพวกเราได้ใช้ ภาษา C และ Libary SDL2 เข้ามาช่วยในการเขียน
+ สวัสดีครับ สำหรับกลุ่ม Animal-Fighter พวกเราได้สร้างเกม 2D โดยลักษณะของตัวเกมเบื้องต้น คือเราจะต้องหลบหลีกสัตว์ร้าย และ เก็บระเบิด เพื่อที่จะไปทำลายป้อมของศัตรู
+ โปรแกรมนี้ ใช้ภาษา C และ Library SDL ในการเขียน
  
  
 <br>
 
 # Tools
 
-- [SDL2](https://www.libsdl.org/download-2.0.php). main libaby ที่ใช้สร้าง 
-- [Pixelart](http://pixelartmaker.com/) เว็บสร้าง Sprite (graphics) 
+- [SDL2](https://www.libsdl.org/download-2.0.php). Library ที่ใช้ในการสร้าง
+- [Pixelart](http://pixelartmaker.com/) เว็บสำรหับวาด Sprite (graphics) ที่ใช้ในเกมนี้
 
 <br>
 
@@ -18,12 +18,12 @@
 
 1. โหลด zip file จาก Github 
 2. ทำการแตกไฟล์
-3. เข้าไปที่ system file > Animal-Fighter.exe เพื่อเริ่มเกม
+3. เข้าไปที่ system file > ดับเบิ้ลคลิกที่ Animal-Fighter.exe เพื่อเริ่มเกม
 
 
 # How to play
 
-1. เมื่อเปิดเกมส์ให้ กด **Enter** เพื่อเข้าเกมส์
+1. เมื่อเปิดเกมแล้ว ให้ กด **Enter** เพื่อเข้าเกม
 2. ใช้ปุ่มลูกศร เพื่อเคลื่อนที่
 3. หลบหลีกสัตว์ร้าย 
 4. เก็บระเบิดเพื่อทำลายป้อมศัตรู<br>
@@ -46,7 +46,7 @@ interface ต่างๆ ภายในเกม
 
 # NOTE!
 
-- มีการลดฟังก์ชั่นกัน upgrade 
+- มีการลดฟังก์ชั่นการ upgrade ตัวละคร
 - ลดฟังก์การเลือกตัวละครที่จะให้สู้ออกไป
 
 
@@ -60,7 +60,7 @@ interface ต่างๆ ภายในเกม
 
 
 # ![](/Resource/Supervisor.png) Assistant Teacher
-|ผศ. ดร. กิติ์สุชาติ พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
+|ผศ. ดร. กิติ์สุชา พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
 |:-:|:-:|
 |![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Oong.png)|![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Panwit.png)|
 
