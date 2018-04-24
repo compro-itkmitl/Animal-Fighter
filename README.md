@@ -16,7 +16,7 @@
 
 # How to install 
 
-1. โหลด zip file จาก [Githyb]( https://github.com/compro-itkmitl/Animal-Fighter)
+1. โหลด zip file จาก [Github]( https://github.com/compro-itkmitl/Animal-Fighter)
 2. ทำการแตกไฟล์
 3. เข้าไปที่ system file > ดับเบิ้ลคลิกที่ Animal-Fighter.exe เพื่อเริ่มเกม
 
