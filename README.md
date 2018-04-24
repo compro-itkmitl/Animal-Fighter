@@ -41,6 +41,7 @@ interface ต่างๆ ภายในเกม
 
 <p align="left"> <img src="graphics/1.png" width="400"/></p>
 
+<p align="left"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/forgitt.PNG?raw=true" width="400"></p>
 <p align="left"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/3.PNG?raw=true" width="400"></p>
 <p align="left"> <img src="https://github.com/compro-itkmitl/Animal-Fighter/blob/master/graphics/4.PNG?raw=true" width="400"></p>
 
@@ -60,7 +61,7 @@ interface ต่างๆ ภายในเกม
 
 
 # ![](/Resource/Supervisor.png) Assistant Teacher
-|ผศ. ดร. กิติ์สุชา พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
+|ผศ. ดร. กิติ์สุชาต พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
 |:-:|:-:|
 |![](https://github.com/compro-itkmitl/Vacuum-Cleaner-Amazing/blob/master/img/AjOong.png)|![](https://github.com/compro-itkmitl/guidare/blob/master/Aj.%20Panwit.png?raw=true)|
 
