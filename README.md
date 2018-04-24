@@ -10,7 +10,7 @@
 # Tools
 
 - [SDL](https://www.libsdl.org/download-2.0.php). Library ที่ใช้ในการสร้าง
-- [Pixelart](http://pixelartmaker.com/) เว็บสำรหับวาด Sprite (graphics) ที่ใช้ในเกมนี้
+- [Pixelart](http://pixelartmaker.com/) เว็บสำหรับวาด Sprite (graphics) ที่ใช้ในเกมนี้
 
 <br>
 
