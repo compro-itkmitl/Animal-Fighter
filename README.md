@@ -62,7 +62,7 @@ interface ต่างๆ ภายในเกม
 # ![](/Resource/Supervisor.png) Assistant Teacher
 |ผศ. ดร. กิติ์สุชา พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
 |:-:|:-:|
-|![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Oong.png)|![](https://raw.githubusercontent.com/sagelga/ComPro_Project/master/Resource/Aj.%20Panwit.png)|
+|![](https://github.com/compro-itkmitl/Vacuum-Cleaner-Amazing/blob/master/img/AjOong.png)|![](https://github.com/compro-itkmitl/guidare/blob/master/Aj.%20Panwit.png?raw=true)|
 
 รายงานนี้เป็นส่วนหนึ่งของวิชา Computer Programming : Information Technology @KMITL
 
