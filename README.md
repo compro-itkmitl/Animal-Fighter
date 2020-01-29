@@ -58,7 +58,7 @@ interface ต่างๆ ภายในเกม
 |:-:|--|------|---------------|---------|
 |![https://www.facebook.com/thitipt.ariyaratana.1](https://scontent.fbkk5-3.fna.fbcdn.net/v/t1.0-1/p160x160/19554241_880064885477962_3673185930617359704_n.jpg?_nc_cat=0&_nc_eui2=v1%3AAeFGw5Ir94hkesBLh5E8B8FpjBjO4XM0OPkvfAxeWVbwtudso3gX4uLBh-dEa4Pp5oxdWUzCsX0Grk-FiRac9OiXilYcgeQF5EjEgDJKNbd7Vg&oh=2f6576f9afb939d2effdff4bafbe2f4c&oe=5B5A2621)|Thitipat|Ariyaratana|[@thitipat021](https://github.com/thitipat021)|60070021|
 |![https://www.facebook.com/narongded.pinprechachai](https://scontent.fbkk5-3.fna.fbcdn.net/v/t1.0-1/c1.0.160.160/p160x160/22780314_1464805656947913_6318736334116888243_n.jpg?_nc_cat=0&_nc_eui2=v1%3AAeE6E-3XOL54p8pUmjjbruc1QNMXA7WSSTkhKzeyUs7DSsSqe3jk4iJhmDHTZR3o0J0i3IPBx7l_Uv8qJz9QVtgXe210e38bOmWZ7pmf-y0TrQ&oh=85ff87eca4946ea72f23392d4202898e&oe=5B68E278)|Narongded|Pinprechachai|[@Narongded](https://github.com/Narongded)|60070023|
-|![https://www.facebook.com/ifackerr](https://scontent.fbkk5-3.fna.fbcdn.net/v/t1.0-1/c27.0.160.160/p160x160/27657439_1708783622511767_463601764313892920_n.jpg?_nc_cat=0&_nc_eui2=v1%3AAeGUlVlSZNVaZ9m6TvYT020-G68-LZGyEzcW0sHzSQiidShB8UH1tEC67rbZYr4Tq_sj7l4tBSE-1rkSQlDDunHOfEwQpKSj4hcpYjV76arvNw&oh=98ffe25c99e6f519b678149fc3713637&oe=5B4F83D7)|Thong-ngurn|Yampradit|[@ifackerx](https://github.com/ifackerx)|60070030| 
+<a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a> 
 
 
 # ![](/Resource/Supervisor.png) Assistant Teacher
