@@ -55,9 +55,7 @@ interface ต่างๆ ภายในเกม
 
 # ![](/Resource/Person.png) Team Members
 |  |Name|Surname|GitHub Username|Student ID|
-|:-:|--|------|---------------|---------|
-|![<a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a> |60070021|
-|![<a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a> ](https://scontent.fbkk5-3.fna.fbcdn.net/v/t1.0-1/c1.0.160.160/p160x160/22780314_1464805656947913_6318736334116888243_n.jpg?_nc_cat=0&_nc_eui2=v1%3AAeE6E-3XOL54p8pUmjjbruc1QNMXA7WSSTkhKzeyUs7DSsSqe3jk4iJhmDHTZR3o0J0i3IPBx7l_Uv8qJz9QVtgXe210e38bOmWZ7pmf-y0TrQ&oh=85ff87eca4946ea72f23392d4202898e&oe=5B68E278)|Narongded|Pinprechachai|[@Narongded](https://github.com/Narongded)|60070023|
+|:-:|--|------|---------------|---------||Narongded|Pinprechachai|[@Narongded](https://github.com/Narongded)|60070023|
 <a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a> 
 
 
