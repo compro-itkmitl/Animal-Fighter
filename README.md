@@ -55,8 +55,10 @@ interface ต่างๆ ภายในเกม
 
 # ![](/Resource/Person.png) Team Members
 |  |Name|Surname|GitHub Username|Student ID|
-|:-:|--|------|---------------|---------||Narongded|Pinprechachai|[@Narongded](https://github.com/Narongded)|60070023|
-<a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a> 
+
+| <a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a>  |Name|Surname|GitHub Username|Student ID|
+
+
 
 
 # ![](/Resource/Supervisor.png) Assistant Teacher
