@@ -53,16 +53,14 @@ interface ต่างๆ ภายในเกม
 
 
 
-# ![](/Resource/Person.png) Team Members
-|  |Name|Surname|GitHub Username|Student ID|
+> price may vary overtime dedicate price store foreach booking is needed*
+# 👥Team Member
 
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
-
-
-| <a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a>  |Name|Surname|GitHub Username|Student ID|
-
+|<a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a>  |<a href=""><img 
+| :-: |
+|ธงเงิน แย้ม|
+|60070030 |
+|    [@ifackerx](https://github.com/ifackerx)    |
 
 
 
