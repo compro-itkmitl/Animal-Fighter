@@ -56,11 +56,11 @@ interface ต่างๆ ภายในเกม
 > price may vary overtime dedicate price store foreach booking is needed*
 # 👥Team Member
 
-|<a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a>  |<a href=""><img src="https://avatars0.githubusercontent.com/u/31315990?s=460&v=4" width="100px"></a>  |<a href=""><img src="https://avatars0.githubusercontent.com/u/32817745?s=460&v=4" width="100px"></a>  | <a href=""><img src="https://avatars0.githubusercontent.com/u/32954674?s=460&v=4" width="100px"></a>  |
-| :-: | :-: | :-: | :-: |
-|ธงเงิน แย้ม|รวิชญ์ โลหะขจรพันธ์|ศตวรรษ ธิติศุภกุล|สุธี พิละมาตย์
-|60070030 |      60070081      |      60070093      | 60070105|
-|    [@ifackerx](https://github.com/ifackerx)    |     [@RawitSHIE](https://github.com/RawitSHIE)     |     [@satawatnack](https://github.com/satawatnack)     | [@itisowen](https://github.com/itisowen) |
+|<a href=""><img src="https://avatars3.githubusercontent.com/u/32660620?s=400&v=4" width="100px"></a>  |
+| :-: |
+|ธงเงิน แย้ม|
+|60070030 |
+|    [@ifackerx](https://github.com/ifackerx)    | 
 
 
 # ![](/Resource/Supervisor.png) Assistant Teacher
