@@ -62,6 +62,17 @@ interface ต่างๆ ภายในเกม
 |60070030 |
 |    [@ifackerx](https://github.com/ifackerx)    | 
 
+|<a href=""><img src="https://scontent.fbkk5-1.fna.fbcdn.net/v/t1.0-9/s960x960/86380335_2697890036972796_2787612995499327488_o.jpg?_nc_cat=109&_nc_sid=85a577&_nc_eui2=AeHV2-WYleTXLpG5wxcnD1cBig1bDKTno6GKDVsMpOejoXpQhZivFPYOyxMNRvUOYVzGtFG1Ie3KkT9IhUSqmVCZ&_nc_ohc=OynYqbIUU3IAX9BUXFq&_nc_ht=scontent.fbkk5-1.fna&_nc_tp=7&oh=2857b5ba10ce5b8a32c1523dbeeaa0a3&oe=5EF8DFC8" width="100px"></a>  |
+| :-: |
+|ณรงค์เดช ปิ่นปรีชาชัย|
+|60070023 |
+|    [@narongded](https://github.com/Narongded)    | 
+
+|<a href=""><img src="https://scontent.fbkk5-6.fna.fbcdn.net/v/t1.0-1/19554241_880064885477962_3673185930617359704_n.jpg?_nc_cat=102&_nc_sid=dbb9e7&_nc_eui2=AeEO1RiHxaDowWGHwqpuijOblWq2JvdwRqSVarYm93BGpCJvRYnLUR0F1tLLXOZdprIIF2tDQJdJLlz4cBkHM7Ia&_nc_ohc=x0pzuAOdJTgAX_VJ3mb&_nc_ht=scontent.fbkk5-6.fna&oh=b778a40b2aa7af6490187e5820f3fe72&oe=5EF8E376" width="100px"></a>  |
+| :-: |
+|ฐิติพัฒ อริยพัฒนา|
+|60070021 |
+
 
 # ![](/Resource/Supervisor.png) Assistant Teacher
 |ผศ. ดร. กิติ์สุชาต พสุภา|ผศ. ดร. ปานวิทย์ ธุวะนุติ|
